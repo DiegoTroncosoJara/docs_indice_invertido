@@ -1,0 +1,5 @@
+telefono
+automovil
+celular
+perrito
+salvaje
