@@ -18,25 +18,57 @@ config = {
   'port': '3306',
   'database': 'documentos'
 }
-slaves = [('http://localhost:5001/', 0), ('http://localhost:5002/', 0), ('http://localhost:5003/', 0)]
-
+##slaves = [('http://localhost:5001/', 0), ('http://localhost:5002/', 0), ('http://localhost:5003/', 0)]
+slaves_total = []
+slaves = []
 ## para los datos de la base de datos 
 rows = ()
 
+load_dotenv()
 
 def init_esclavos(): 
-    cantidad_esclavos = (os.getenv("ESCLAVOS_CANT"))
-    print(cantidad_esclavos)
+    global slaves
+    cantidad_esclavos = int((os.getenv("ESCLAVOS_CANT")))
+    for i in range(cantidad_esclavos):
+        aux = os.getenv("URL_ESCLAVO_{}".format(str(i)))
+        condion_esclavo = latido_de_esclavos(aux)
+        if(condion_esclavo):
+            slaves_total.append((aux,0))
     
+    slaves = slaves_total
+
+    ##print(slaves)
+
+def latido_de_esclavos(url): 
+    
+    try: 
+        response = requests.get('{}/latido'.format(url)) 
+        resultado = response.json()
+        if(resultado["status"]=="ok"):
+            return True
+        
+    except:
+        return False
+        
+def vallidacion_de_esclavo_determinado_tiempo():
+    for i in range(len(slaves)):
+        
+        condicion_esclavo = latido_de_esclavos(slaves[i][0])
+        print(condicion_esclavo)
+        if(condicion_esclavo != True):
+            slaves.pop(i)
+
+    print(slaves)  
 
 
+    
 def obtener_dominio(url):
     ## obtener un diferenciador para la  paginas con el mismo dominio 
     cant= len(url)
     cant= "" + str(cant)
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
-    
+
     return domain+"_"+cant 
 
 ###balanceador de carga
@@ -134,8 +166,8 @@ def insertar_en_base_datos(url,id_esclavo):
 
     id = objeto[0]
     url = obtener_dominio(url)
-    ruta_absoluta = os.path.abspath("{}.txt".format(url))
-    
+    ruta_absoluta = os.path.abspath("esclavo{}/data/{}.txt".format(id_esclavo,url))
+    ###"/esclavo{}/data/{}.txt".format(str(id_esclavo), url)
     ###actualiza la base de datos 
     consulta_update = 'UPDATE documentos SET path = %s, ultima_desc = %s, id_esclavo = %s  WHERE id = %s'
     cursor.execute(consulta_update, (ruta_absoluta, hora_actual, id_esclavo,id ))
@@ -146,6 +178,8 @@ def insertar_en_base_datos(url,id_esclavo):
 
 
 def iniciar_programa():
+    ##verifica que los esclavos esten disponibles y los agrega a una lista -> slaves
+    init_esclavos()
     #Agregue aquí el código para realizar la consulta
     for row in rows:
         print(row[1])
@@ -159,23 +193,31 @@ if __name__ == '__main__':
     ##with daemon.DaemonContext():
     ##main()
 
-    rows = consultar_base_dato(config)
-    iniciar_programa()
+    # init_esclavos()
 
-
-    schedule.every(30).minutes.do(demonio_consulta_datos)
-    schedule.every().hour.at(":00").do(consultar_por_hora)
-    # schedule.every().day.at("15:56").do(iniciar_programa)
-    # schedule.every().day.at("15:56").do(iniciar_programa)
+    # print(slaves_total)
+    # print(slaves)
     
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    if(1):
+
+        rows = consultar_base_dato(config)
+        iniciar_programa()
+        
+
+        schedule.every(1).minutes.do(vallidacion_de_esclavo_determinado_tiempo)
+        schedule.every(30).minutes.do(demonio_consulta_datos)
+        schedule.every().hour.at(":00").do(consultar_por_hora)
+        # schedule.every().day.at("15:56").do(iniciar_programa)
+        # schedule.every().day.at("15:56").do(iniciar_programa)
+        
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
 
     
 
 
-    #############################################################################
+    ###########################################################################
     # for row in rows:
     #     print(row[1])
     #     minimo = send_load_balanced_request(row[1])

@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 
 def escribir_archivo(url,data):
-    with open('{}.txt'.format(url), 'w') as archivo:
+    with open('./data/{}.txt'.format(url), 'w') as archivo:
         archivo.write(data)
 
 
@@ -21,6 +21,13 @@ def obtener_dominio(url):
     domain = parsed_url.netloc
     
     return domain+"_"+cant 
+
+
+@app.route('/latido',  methods=['GET'])
+def latido():
+    return  ({'status': "ok" })
+
+
 
 @app.route('/scrapi',  methods=['POST'])
 def scraping_data():
