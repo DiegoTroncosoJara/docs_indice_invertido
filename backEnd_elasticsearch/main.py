@@ -65,8 +65,7 @@ def iniciar_las_listas_con_data():
         lista_nombres.append(nombre_link)
         lista_path.append(i[1])
         
-    print(lista_nombres)
-    print(lista_path)    
+      
 
 
 def create_index():
@@ -110,6 +109,8 @@ def refresh_indexes():
         for i in range(len(lista_path)):
 
             file_name = lista_nombres[i] # ···> falabella | ripley
+            url = datos[i][0]
+            print(url)
             
             try:
 
@@ -122,11 +123,13 @@ def refresh_indexes():
                     es.index(index='db_scrapper', id=file_name, document={
                         'title': file_name,
                         'content': file_content,
+                        'url' : url,
                         'timestamp': datetime.now()
+
                     })
                     response['successfully_indexed'].append({'file_name':file_name})
 
-        return response
+        return  response
 
     except Exception as e:
         print("desde error.. ")
@@ -152,11 +155,19 @@ def refresh_root():
 @app.get("/api/delete")
 def delete():
     # Crea una instancia de Elasticsearch
-    es = Elasticsearch()
+    es = Elasticsearch("http://localhost:9200")
 
-    # Envía una solicitud DELETE para eliminar todos los índices
-    es.indices.delete(index="db_scrapper")
+    try:
+        # Envía una solicitud DELETE para eliminar todos los índices
+         es.indices.delete(index="db_scrapper")
+        
+    except:
+        return{"status" : "error...."}
+
+        
+    
     return { 'success': True, 'message': 'Se han eliminado los indices' }
+    
 
 
 # /api/elasticsearch/search: Search in the elasticsearch indexes
@@ -168,7 +179,7 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
     # We need to search in the index for the query
     # If we have a match, then return it
     # If we don't have a match, then return an error
-
+    
     try:
         # NOTE: 'content' field is the field that we want to search (in the index)
         # query: It's the query that we want to search
@@ -189,13 +200,19 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
 
         # --- Searching in the index ---
         resp = es.search(index="db_scrapper", query=query, highlight=highlight)
+        ##print(resp['hits']['hits'])
         finalResp = []
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
+            url = hit['_source']['url']
+
+            # print(url)
+
             content = hit['_source']['content']
-            maintitle = title.split(".")[1]
-            temp = { 'maintitle': maintitle, 'link': title, 'content': content}
+            maintitle = title
+            temp = { 'maintitle': maintitle, 'link': url, 'content': content}
             finalResp.append(temp)
+            # print(finalResp)
         # Return full response
         return { 'success': True, 'data': finalResp }
 
