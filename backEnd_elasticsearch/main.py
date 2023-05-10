@@ -20,7 +20,7 @@ conexion = mysql.connector.connect(
     host="localhost",
     user="root",
     password="123456",
-    database="dbsd"
+    database="documentos"
 )
 cursor = conexion.cursor()
 
@@ -70,6 +70,7 @@ def iniciar_las_listas_con_data():
       
 
 
+
 def create_index():
 
     try:
@@ -88,7 +89,23 @@ def create_index():
 
     except Exception as e:
         print('Index already exists')
-        return { 'success': False, 'message': f'Index DB: {DB_NAME} already exists' }
+        try: 
+            q = {"match_all": {}} # ···> Query to get all documents
+            result = es.search(index=DB_NAME, query=q)
+            current_documents = []
+            for hit in result['hits']['hits']:
+                doc_info = {
+                    'id': hit['_id'],
+                    'title': hit['_source']['title'],
+                }
+                current_documents.append(doc_info)
+
+            print('Current documents: ', current_documents)
+
+            return { 'success': False, 'message': f'Index DB: {DB_NAME} already exists', 'current_documents': current_documents}
+        except Exception as e:
+            print('Error: ', e)
+            return { 'success': False, 'message': 'Something went wrong' }
 
 def refresh_indexes():
     # Here we need to read /data/ folder, find .html files and create the indexes
