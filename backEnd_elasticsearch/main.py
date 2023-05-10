@@ -1,5 +1,6 @@
 # FastAPI
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
+from fastapi.responses import JSONResponse
 # Elasticsearch
 from elasticsearch import Elasticsearch
 from datetime import datetime
@@ -18,8 +19,8 @@ lista_path = []
 conexion = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",
-    database="documentos"
+    password="123456",
+    database="dbsd"
 )
 cursor = conexion.cursor()
 
@@ -31,6 +32,7 @@ DB_NAME = 'db_scrapper'
 
 
 def obtener_dominio(path):
+    print("path = ",path)
     parsed_url = urlparse(path)
     domain_name = parsed_url.netloc
     
@@ -40,8 +42,8 @@ def obtener_dominio(path):
     if "." in domain_name:
         domain_name = domain_name[:domain_name.index(".")]
     ##print(domain_name)
-    return domain_name
-
+    #return domain_name
+    return path
 
 def llamada_base_datos():
     global datos
@@ -69,6 +71,7 @@ def iniciar_las_listas_con_data():
 
 
 def create_index():
+
     try:
         es.indices.create( # ···> Solo debe ejecutarse una vez
             index=DB_NAME, # ···> db_scrapperDB_NAME
@@ -89,6 +92,7 @@ def create_index():
 
 def refresh_indexes():
     # Here we need to read /data/ folder, find .html files and create the indexes
+    #print('w')
     global lista_nombres
     global lista_path
     iniciar_las_listas_con_data()
@@ -110,15 +114,17 @@ def refresh_indexes():
 
             file_name = lista_nombres[i] # ···> falabella | ripley
             url = datos[i][0]
-            print(url)
             
             try:
 
                 es.get(index=DB_NAME, id=file_name)
+                
                 response['already_exists'].append({'file_name':file_name})
 
+
             except:
-                with open(lista_path[i], 'r', encoding='utf-8')  as f:
+                print('XS')
+                with open(lista_path[i], 'r', encoding='ISO-8859-1')  as f:
                     file_content = f.read()
                     es.index(index='db_scrapper', id=file_name, document={
                         'title': file_name,
@@ -127,6 +133,7 @@ def refresh_indexes():
                         'timestamp': datetime.now()
 
                     })
+
                     response['successfully_indexed'].append({'file_name':file_name})
 
         return  response
@@ -197,19 +204,20 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
                 },
             },
         }
-
         # --- Searching in the index ---
         resp = es.search(index="db_scrapper", query=query, highlight=highlight)
-        ##print(resp['hits']['hits'])
+
+        print("cantidad de respuestas jiji", len(resp['hits']['hits']))
         finalResp = []
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
             url = hit['_source']['url']
+            print(hit.keys())
+            print(hit['highlight'])
+            content = hit['highlight']['content']
 
-            # print(url)
 
-            content = hit['_source']['content']
-            maintitle = title
+            maintitle = title.split(".")[1]
             temp = { 'maintitle': maintitle, 'link': url, 'content': content}
             finalResp.append(temp)
             # print(finalResp)
@@ -221,29 +229,34 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
         return { 'success': False, 'message': 'Something went wrong. Try adding a query ex: <search?q=audifonos>' }
 
 
-@app.post("/api/link/")
-async def get_link(link: str):
-    hora_desc = "17:00:00"
-    path = "/../data"
-    query_db = "INSERT INTO documentos (link, hora_desc, path) VALUES (%s, %s, %s)"
-    values_db = (link, hora_desc, path)
+ 
+
+
+@app.post("/api/links/")
+async def get_link(link: dict):
+    
+    if not link:
+        raise HTTPException(status_code=400, detail="No se proporcionaron datos")
+
+#TODO Ver si existe un link igual en la base de datos, si existe no agregarlo, si no, agregarlo
+
+    #####
+    hoara_desc = "17:00:00"
+    link_final = link["link"]
+    print("link: ",link_final)
+    query_db = "INSERT INTO documentos (link, hoara_desc) VALUES (%s, %s)"
+    values_db = (link_final, hoara_desc)
     cursor.execute(query_db, values_db)
     conexion.commit()
-    return {"link_received": link}
 
+    return JSONResponse(content={"message": link})
 
+# ASI SE EJECUTA :  se envia como json en un body
 
+# {
+#     "link": "https://www.example.com"
+# }
 
-
-
-@app.get("/api/pruebas/")
-async def root():
-    return {"message": "¡Hola, mundo!"}
-
-
-
-
-# if __name__ == '__main__':
     
 
     

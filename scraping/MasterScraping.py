@@ -13,10 +13,10 @@ from dotenv import load_dotenv
 from urllib.parse import urlparse
 config = {
   'user': 'root',
-  'password': '',
+  'password': '123456',
   'host': 'localhost',
   'port': '3306',
-  'database': 'documentos'
+  'database': 'dbsd'
 }
 ##slaves = [('http://localhost:5001/', 0), ('http://localhost:5002/', 0), ('http://localhost:5003/', 0)]
 slaves_total = []
