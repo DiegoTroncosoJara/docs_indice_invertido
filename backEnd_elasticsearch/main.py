@@ -156,6 +156,7 @@ def refresh_indexes():
 
                     response['successfully_indexed'].append({'file_name':file_name})
 
+        response['success'] = True
         return  response
 
     except Exception as e:
@@ -179,6 +180,7 @@ def create_root():
 @app.get("/api/elasticsearch/refresh")
 def refresh_root():
     return refresh_indexes()
+
 @app.get("/api/delete")
 def delete():
     # Crea una instancia de Elasticsearch
@@ -250,7 +252,47 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
 
 
  
+@app.post("/api/elasticsearch/linkPath_scrapper")
+async def linkPath_scrapper(linkPath_scrapper: dict):
+    if not linkPath_scrapper:
+        raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 
+    # LINK PATH : /home/alex/Desktop/info288/proyecto/docs_indice_invertido/scraping/esclavo2/data/www.youtube.com_24.txt
+    # Add : maintitle, url, content
+    link_content = linkPath_scrapper['linkPath_scrapper']
+    
+    # conexino mariadb
+    cursor_1 = conexion.cursor()
+    # Se ejecuta la consulta SQL
+    cursor_1.execute(f"SELECT link FROM documentos WHERE path = '{link_content}'")
+    url = cursor_1.fetchone()
+
+    # Se verifica si el url es None o no
+    print("url: ", url)
+    if url is None:
+        print("El elemento no existe en la base de datos")
+        return {"status": "error", "message": "El elemento no existe en la base de datos"}
+    cursor_1.close()
+
+    # Read the file
+    print("linkPath_scrapper: ", link_content)
+    file_name = link_content.split("/")[-1].split(".")[1]
+
+    print("file_name: ", file_name)
+    print("url: ", url[0])
+    try:
+        with open(link_content, 'r', encoding='ISO-8859-1')  as f:
+            file_content = f.read()
+            es.index(index='db_scrapper', id=file_name, document={
+                'title': file_name,
+                'content': file_content,
+                'url' : url,
+            })
+            return { 'success': True, 'message': 'Se ha indexado el archivo'}
+
+    except Exception as e:
+        print('Error: ', e)
+        return { 'success': False, 'message': 'Something went wrong' }
 
 @app.post("/api/links/")
 async def get_link(link: dict):
