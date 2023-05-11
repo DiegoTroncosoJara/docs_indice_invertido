@@ -59,6 +59,9 @@ def iniciar_las_listas_con_data():
     global lista_nombres
     global lista_path
     global datos
+    lista_nombres = []
+    lista_path = []
+    datos = []
     llamada_base_datos()
     for i in datos:
         
