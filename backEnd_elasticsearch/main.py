@@ -226,6 +226,7 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
                 },
             },
         }
+
         # --- Searching in the index ---
         resp = es.search(index="db_scrapper", query=query, highlight=highlight)
 

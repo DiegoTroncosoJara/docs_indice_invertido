@@ -41,3 +41,11 @@ Este endpoint refresca el índice, y lee los archivos de **data** para indexarlo
 ### GET /api/elasticsearch/search?q={query}
 
 Este endpoint busca en el índice, según el query que se le pase. Si no se le pasa query, retorna un "error".
+
+### POST /api/elasticsearch/linkPath_scrapper
+
+```json
+{
+  "linkPath_scrapper": "/home/alex/Desktop/info288/proyecto/docs_indice_invertido/scraping/esclavo0/data/www.pcfactory.cl_85.txt"
+}
+```
