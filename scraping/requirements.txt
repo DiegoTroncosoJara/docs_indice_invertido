@@ -1,6 +1,0 @@
-pip install schedule
-pip install python-daemon
-pip install requests
-pip install bs4
-pip install -U Flask
-pip install mysql.connector
