@@ -1,0 +1,7 @@
+FastAPI
+elasticsearch
+uvicorn 
+mysql.connector
+
+
+
