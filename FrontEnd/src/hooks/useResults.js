@@ -19,9 +19,10 @@ const obtener_busqueda = async (results) => {
     });
 };
 
-const obtener_busqueda2 = async (results) => {
+const obtener_busqueda2 = async (query) => {
+  console.log('FETCHING FROM "obtener_busqueda2 (QUERY)"');
   const data = await fetch(
-    "http://0.0.0.0:8000/api/elasticsearch/search?q=pcfactory"
+    `http://0.0.0.0:8000/api/elasticsearch/search?q=${query}}`
   )
     .then((response) => response.json())
     .then((data) => {
@@ -43,17 +44,45 @@ const obtener_busqueda2 = async (results) => {
   }
 };
 
-export async function useResults() {
+const obtener_busqueda_default = async () => {
+  console.log('FETCHING FROM "obtener_busqueda_default"');
+  const data = await fetch(`http://0.0.0.0:8000/api/elasticsearch/search`)
+    .then((response) => response.json())
+    .then((data) => {
+      // Manipular los datos de respuesta
+      return data;
+    })
+    .catch((error) => {
+      // Manejar errores
+      console.error(error);
+    });
+
+  switch (data?.success) {
+    case true:
+      console.log("data.success === true");
+      return data.data;
+    default:
+      return [];
+  }
+};
+
+export async function useResults(query) {
   // const results = json;
-  const results = await obtener_busqueda2();
-  //const data = obtener_busqueda(results);
+
+  let results;
+  if (query === undefined || query === null || query === "") {
+    results = await obtener_busqueda_default();
+  } else {
+    results = await obtener_busqueda2(query);
+  }
   console.log("FROM useResults: results: ", results);
 
   const mappedResults = results?.map((res) => ({
-    id: res.id,
-    title: res.title,
+    id: res.link,
+    title: res.maintitle,
     content: res.content,
-    url: res.url,
+    url: res.link,
   }));
-  return { results: mappedResults };
+
+  return mappedResults;
 }

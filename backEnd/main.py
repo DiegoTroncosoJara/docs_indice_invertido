@@ -221,8 +221,31 @@ def delete():
 
 # /api/elasticsearch/search: Search in the elasticsearch indexes
 @app.get("/api/elasticsearch/search")
-
 def search_root(q: str = Query(None, min_length=3, max_length=50)):
+
+    # Si no hay query, es decir se busca por /api/elasticsearch/search
+    # entonces retorna todos los documentos
+    if q is None:
+        q = {
+            "match_all": {},
+        }
+       # --- Searching in the index ---
+        resp = es.search(index="db_scrapper", query=q)
+        print(resp)
+        print("cantidad de respuestas jiji", len(resp['hits']['hits']))
+        finalResp = []
+        for hit in resp['hits']['hits']:
+            title = hit['_source']['title']
+            url = hit['_source']['url']
+            content = hit['_source']['content']
+            maintitle = title.split(".")[1]
+            temp = { 'maintitle': maintitle, 'link': url, 'content': content}
+            finalResp.append(temp)
+            # print(finalResp)
+        # Return full response
+        encoded_item = jsonable_encoder({ 'success': True, 'data': finalResp })
+        return encoded_item
+
     print("hola")
     print("aca la consulta ", Query )
     # q: str = Query(None, min_length=3, max_length=50)
@@ -323,7 +346,7 @@ async def linkPath_scrapper(linkPath_scrapper: dict):
         print('Error: ', e)
         return { 'success': False, 'message': 'Something went wrong' }
 
-@app.post("/api/links/")
+@app.post("/api/links")
 async def get_link(link: dict):
     
     if not link:

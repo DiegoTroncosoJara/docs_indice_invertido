@@ -19,12 +19,19 @@ function App() {
     fetchData();
   }, []);
 
-  const handleClick = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const fetchData = async () => {
+      setResults(await useResults(newQuery));
+    };
+
     const newQuery = inputRef.current.value;
     setQuery(newQuery);
     console.log("newQuery: ", newQuery);
     if (newQuery == "") {
-      setError("No se ha ingresado una palabra");
+      // Si no hay nada en el input, se muestran todos los resultados
+      fetchData();
       return;
     }
 
@@ -33,6 +40,8 @@ function App() {
       return;
     }
 
+    fetchData();
+    setQuery("");
     setError(null);
   };
 
@@ -42,23 +51,22 @@ function App() {
       <h3 className="items-center justify-center pt-10 font-bold text-center text-8xl text-zinc-50">
         BUSCADOR DE PALABRAS
       </h3>
-      <div className="flex items-center justify-center pt-14">
-        <button
-          onClick={handleClick}
+      <form className="flex items-center justify-center pt-14">
+        <input
+          type="submit"
+          onClick={handleSubmit}
           className="px-4 py-2 font-bold text-black bg-white rounded-full hover:bg-slate-400"
-        >
-          Buscar
-        </button>
+        ></input>
         <input
           ref={inputRef}
           placeholder="Computadores, nintendo, IA, etc."
           className="w-1/4 py-2 pl-3 ml-1 bg-white border rounded-lg appearance-none sm:text-md"
         ></input>
-      </div>
+      </form>
       {error && (
         <p className="flex items-center justify-center text-red-500">{error}</p>
       )}
-      {/* <Results json={results} /> */}
+      <Results json={results} />
     </div>
   );
 }
