@@ -19,7 +19,7 @@ import mysql.connector
 from urllib.parse import urlparse
 
 origins = [
-    "http://localhost:5173/"
+    "http://localhost:5173"
 ]
 
 
@@ -29,7 +29,7 @@ lista_path = []
 conexion = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",
+    password="123456",
     database="documentos"
 )
 cursor = conexion.cursor()
