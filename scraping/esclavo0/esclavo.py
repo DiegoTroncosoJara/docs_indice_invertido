@@ -4,9 +4,15 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import re
-##----------------------------------------------------------------#
+import os
+from dotenv import load_dotenv
 
-port = 5001
+##----------------------------------------------------------------#
+##funcion que permite leer el archivo .env 
+load_dotenv()
+
+
+port = os.getenv("PORT_SLAVE")
 
 ## define que es una aplicacion flask 
 app = Flask(__name__)

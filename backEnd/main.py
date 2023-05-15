@@ -18,8 +18,18 @@ import uvicorn
 import mysql.connector
 from urllib.parse import urlparse
 
+## para variable de enterno
+from dotenv import load_dotenv
+
+
+
+##----------------------------------------------------------------#
+##funcion que permite leer el archivo .env 
+load_dotenv()
+
+port = int(os.getenv("PORT"))
 origins = [
-    "http://localhost:5173"
+    os.getenv("URL_FRONT_END")
 ]
 
 
@@ -27,10 +37,10 @@ datos = []
 lista_nombres = []
 lista_path = []
 conexion = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="documentos"
+    host=os.getenv("HOST_DB"),
+    user=os.getenv("USER_DB"),
+    password=os.getenv("PASSWORD_DB"),
+    database=os.getenv("DATA_BASE")
 )
 cursor = conexion.cursor()
 
@@ -45,7 +55,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-es = Elasticsearch("http://localhost:9200")
+es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 DB_NAME = 'db_scrapper'
 
 
@@ -204,7 +214,7 @@ def refresh_root():
 @app.get("/api/delete")
 def delete():
     # Crea una instancia de Elasticsearch
-    es = Elasticsearch("http://localhost:9200")
+    es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 
     try:
         # Envía una solicitud DELETE para eliminar todos los índices
@@ -383,4 +393,4 @@ async def get_link(link: dict):
 
 if __name__ == "__main__":
    
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)

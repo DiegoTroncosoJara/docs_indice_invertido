@@ -16,11 +16,11 @@ load_dotenv()
 
 #diccionario que guarda la informacion para la conexión de la base de datos 
 config = {
-  'user': 'root',
-  'password': '',
-  'host': 'localhost',
-  'port': '3306',
-  'database': 'documentos'
+  'user': os.getenv("USER_DB"),
+  'password': os.getenv("PASSWORD_DB"),
+  'host': os.getenv("PASSWORD_DB"),
+  'port': os.getenv("PORT_DB"),
+  'database': os.getenv("DATA_BASE")
 }
 
 ## dupla que guarda los datos de la base de datos 
@@ -34,9 +34,10 @@ slaves_total = []
 
 
 ##realiza una llamada para avisar al back-end que se insercto una nueva url para que pueda guardarla en el indixe invertido
-def llamada_para_nuevo_link(nuevo_url): 
+def llamada_para_nuevo_link(path): 
     try: 
-        response = requests.get('{}'.format("http://0.0.0.0:8000/api/............")) 
+        data = {'url_scraping': path  }
+        response = requests.post('{}/api/elasticsearch/linkPath_scrapper'.format(os.getenv("URL_BACK_END")), json=data)
         resultado = response.json()
         if(resultado['success'] == True):
             print("se realizo la indexion correctamente....")
@@ -54,13 +55,14 @@ def llamada_para_nuevo_link(nuevo_url):
 ## llamada  para avisar al back-end que puede empezar indexear 
 def llamada_back_elastich(): 
     try: 
-        response = requests.get('{}'.format("http://0.0.0.0:8000/api/elasticsearch/refresh")) 
+        response = requests.get('{}/api/elasticsearch/refresh'.format(os.getenv("URL_BACK_END"))) 
         resultado = response.json()
+        
         if((resultado['success'] == True)):
            print("todo ok en la indexion de los datos")
-
+        
            return True 
-        elif(resultado['success'] == False):
+        if(resultado['success'] == False):
             print("desde aca por que es falso.....")
             return False
             pass
@@ -150,7 +152,8 @@ def para_nuevas_url(rows_aux):
         tuplas_filtradas = [tupla for tupla in rows_aux if any(x is None for x in tupla)]
         for row in tuplas_filtradas:
             minimo = send_load_balanced_request(row[1])
-            insertar_en_base_datos(row[1],minimo)
+            path =insertar_en_base_datos(row[1],minimo)
+            llamada_para_nuevo_link(path)
         rows = consultar_base_dato(config)
         
 ## funcion que validad si alguna de las url de la base de datos le toca hacer scraping         
@@ -220,6 +223,7 @@ def insertar_en_base_datos(url,id_esclavo):
 
     
     conn.close()
+    return ruta_absoluta
 
 ##porgrama que inicializa el programa cada vez que se ejecuta 
 def iniciar_programa():
@@ -232,21 +236,12 @@ def iniciar_programa():
         print(minimo)
         insertar_en_base_datos(row[1],minimo)
         #peticion_esclavo(row[1])
+    if(llamada_back_elastich()):
+            print("se realizo llama al back-end")
+
 
 
 if __name__ == '__main__':
-
-    #cosas de prueba 
-
-    ##with daemon.DaemonContext():
-    ##main()
-
-    # init_esclavos()
-
-    # print(slaves_total)
-    # print(slaves)
-    
-    ##llamada_back_elastich()
 
     if(1):
         ## son los datos que estna en la base de datos 

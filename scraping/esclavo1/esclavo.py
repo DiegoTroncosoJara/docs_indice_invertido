@@ -4,16 +4,26 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import re
-port = 5002
+import os
+from dotenv import load_dotenv
+
+##----------------------------------------------------------------#
+##funcion que permite leer el archivo .env 
+load_dotenv()
+
+
+port = os.getenv("PORT_SLAVE")
+
+## define que es una aplicacion flask 
 app = Flask(__name__)
 
-
+## guarda los datos scrapiados en un archivo txt -> el nombre del archivo es el dominio con un identificador
 def escribir_archivo(url,data):
     with open('./data/{}.txt'.format(url), 'w') as archivo:
         archivo.write(data)
 
-def obtener_dominio(url):
-    ## obtener un diferenciador para la  paginas con el mismo dominio 
+## obtener un diferenciador para la  paginas con el mismo dominio
+def obtener_dominio(url): 
     cant= len(url)
     cant= "" + str(cant)
     parsed_url = urlparse(url)
@@ -22,11 +32,13 @@ def obtener_dominio(url):
     return domain+"_"+cant 
 
 
+## definicion  de un latido para saber que el servidor esta disponible
 @app.route('/latido',  methods=['GET'])
 def latido():
     return  ({'status': "ok" })
 
 
+###definicon /scrapi -> en esta parte  realiza el scrapeo de la pagina enviada.
 @app.route('/scrapi',  methods=['POST'])
 def scraping_data():
     
@@ -53,27 +65,8 @@ def scraping_data():
         return   ({'status': "Algun error..." })
 
 
-# @app.route('/scrapi/<url>')
-# def scraping_data(url):
-    
-    
-#     index = {}
-#     data=""
-#     try:
-#         response = requests.get("https://"+url+"/") # Hacer una solicitud GET al sitio web
-    
-#         soup = BeautifulSoup(response.text, 'html.parser') # Analizar el contenido HTML de la página
-#         # Extraer todas las palabras clave de la página web
-#         words = re.findall('\w+', soup.text)
-#         for word in words:
-#                 data += word + "\n"
-        
-#         escribir_archivo(url,data)
-#         return jsonify({'status': "ok" })
-#     except:
-#         print("error...")
-#         return   jsonify({'status': "Algun error..." })
-
 
 if __name__ == '__main__':
+
+    ##arranca el servidor
     app.run(debug=True, port=port)
