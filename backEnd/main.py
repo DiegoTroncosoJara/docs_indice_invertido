@@ -29,7 +29,7 @@ lista_path = []
 conexion = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="123456",
+    password="",
     database="documentos"
 )
 cursor = conexion.cursor()
