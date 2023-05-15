@@ -50,7 +50,7 @@ def llamada_para_nuevo_link(nuevo_url):
 
     pass
 
-llamada_para_nuevo_link("hola")
+
 ## llamada  para avisar al back-end que puede empezar indexear 
 def llamada_back_elastich(): 
     try: 
