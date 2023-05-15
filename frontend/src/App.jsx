@@ -4,6 +4,7 @@ import { Results } from "./components/Results";
 import { useRef, useState, useEffect } from "react";
 import { useResults } from "./hooks/useResults";
 
+
 function App() {
   const [results, setResults] = useState([]);
 
@@ -11,6 +12,7 @@ function App() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState(null);
 
+  // Cada vez que se renderice la app, se obtienen los resultados de la busqueda.
   useEffect(() => {
     const fetchData = async () => {
       setResults(await useResults());
@@ -18,6 +20,7 @@ function App() {
     fetchData();
   }, []);
 
+  // Funcion que maneja errores y el envío de los mensajes para realizar una busqueda.
   const handleSubmit = (e) => {
     e.preventDefault();
     const newQuery = inputRef.current.value;
@@ -44,7 +47,6 @@ function App() {
     setError(null);
   };
 
-  console.log("results: ", results);
   return (
     
     <div className="w-full min-h-screen bg-cyan-600">

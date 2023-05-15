@@ -41,6 +41,7 @@ const getAllResults= async () => {
   }
 };
 
+// hook que entrega resultados a partir de una busqueda
 export async function useResults(query) {
   let results;
 
