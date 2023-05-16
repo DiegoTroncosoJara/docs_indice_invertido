@@ -1,18 +1,20 @@
-## FastAPI
+# FastAPI
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.responses import JSONResponse
+
+
 from fastapi.encoders import jsonable_encoder
+
 from fastapi.middleware.cors import CORSMiddleware
 
-## Elasticsearch
+# Elasticsearch
 from elasticsearch import Elasticsearch
 from datetime import datetime
-## Otros
-
+# Others
 import os
+import glob
 import uvicorn
-
-## conexión DB (mariadb-mysql)
+##db conexion
 import mysql.connector
 from urllib.parse import urlparse
 
@@ -21,11 +23,9 @@ from dotenv import load_dotenv
 
 
 
-# ----- Cargar .env ----- #
-
+##----------------------------------------------------------------#
+##funcion que permite leer el archivo .env 
 load_dotenv()
-
-# ----- Variables: Puerto y Origins (cors) ----- #
 
 port = int(os.getenv("PORT"))
 origins = [
@@ -33,12 +33,9 @@ origins = [
 ]
 
 
-# ----- Variables: Globales ----- #
 datos = []
-list_names = []
-list_path = []
-
-# ----- Conexión: DB MariaDB/Mysql ----- #
+lista_nombres = []
+lista_path = []
 conexion = mysql.connector.connect(
     host=os.getenv("HOST_DB"),
     user=os.getenv("USER_DB"),
@@ -47,8 +44,7 @@ conexion = mysql.connector.connect(
 )
 cursor = conexion.cursor()
 
-# ----- Inicializar FastAPI junto a CORS ----- #
-
+#
 app = FastAPI()
 
 app.add_middleware(
@@ -59,20 +55,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ----- Conexión: ELasticsearch ----- #
 es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 DB_NAME = 'db_scrapper'
 
-# =================================================================================================================== #
-# ===================================== FUNCIONES PARA RUTAS: FastAPI =============================================== #
-# =================================================================================================================== #
 
-# /api/elasticsearch/refresh
-def obtain_domain_name(path):
-    """
-    Obtiene el dominio de un path
-    """
-    # print("path = ",path)
+
+
+def obtener_dominio(path):
+    print("path = ",path)
     parsed_url = urlparse(path)
     domain_name = parsed_url.netloc
     
@@ -85,48 +75,40 @@ def obtain_domain_name(path):
     #return domain_name
     return path
 
-# /api/elasticsearch/refresh
-def db_call():
-    """
-    Carga datos con link y path
-    """
+def llamada_base_datos():
     global datos
     cursor = conexion.cursor()
+
     consulta = "SELECT  link, path FROM  documentos"
     cursor.execute(consulta)
+
     datos = cursor.fetchall()
     ##datos = [elemento for dupla in datos for elemento in dupla]
 
-# /api/elasticsearch/refresh
-def initialize_global_data():
-    """
-    Carga los datos para list_names, list_path y datos
-    Información para verificar que está todo cargado y listo
-    """
-    global list_names
-    global list_path
+def iniciar_las_listas_con_data():
+    global lista_nombres
+    global lista_path
     global datos
-    list_names = []
-    list_path = []
+    lista_nombres = []
+    lista_path = []
     datos = []
-    db_call()
-    
-    # datos contiene link, path por cada documento
+    llamada_base_datos()
     for i in datos:
-        nombre_link = obtain_domain_name(i[0])
-        list_names.append(nombre_link)
-        list_path.append(i[1])
+        
+        
+        nombre_link = obtener_dominio(i[0])
+        lista_nombres.append(nombre_link)
+        lista_path.append(i[1])
+        
+      
 
 
-# /api/elasticsearch/create
+
 def create_index():
-    """
-    Crea el índice "DB_NAME"
-    Si ya está creado, devuelve los documentos que hay
-    """
+
     try:
         es.indices.create( # ···> Solo debe ejecutarse una vez
-            index=DB_NAME, # ···> DB_NAME
+            index=DB_NAME, # ···> db_scrapperDB_NAME
             settings={
                 "index": {
                     "highlight": {
@@ -158,139 +140,141 @@ def create_index():
             print('Error: ', e)
             return { 'success': False, 'message': 'Something went wrong' }
 
-# /api/elasticsearch/refresh
 def refresh_indexes():
-    """
-        Refresca los índices, comparativa que hace utilizando la base de datos.    
-    """ 
+    # Here we need to read /data/ folder, find .html files and create the indexes
+    #print('w')
+    global lista_nombres
+    global lista_path
+    iniciar_las_listas_con_data()
+    print("hola")
+    print(lista_nombres)
+    ##html_files = glob.glob(os.path.join(directory, "*.txt")) # ···> Lista de archivos html [ 'falabella.html', 'ripley.html']
     
-    global list_names
-    global list_path
-    initialize_global_data()
+    # If file (from html_files) is not in the index, then create it
 
+    # We need to create a response to know if all files were created or are already in the index
     response = {
         'already_exists': [],
         'successfully_indexed': []
     }
 
     try:
-        for i in range(len(list_path)):
+        # For each file in html_files [ 'falabella.html', 'ripley.html']
+        for i in range(len(lista_path)):
 
-            file_name = list_names[i]
+            file_name = lista_nombres[i] # ···> falabella | ripley
             url = datos[i][0]
             
             try:
+
                 es.get(index=DB_NAME, id=file_name)
+                
                 response['already_exists'].append({'file_name':file_name})
 
 
             except:
-                with open(list_path[i], 'r', encoding='ISO-8859-1')  as f:
+                print('XS')
+                with open(lista_path[i], 'r', encoding='ISO-8859-1')  as f:
                     file_content = f.read()
-                    es.index(index=DB_NAME, id=file_name, document={
+                    es.index(index='db_scrapper', id=file_name, document={
                         'title': file_name,
                         'content': file_content,
                         'url' : url,
                         'timestamp': datetime.now()
+
                     })
+
                     response['successfully_indexed'].append({'file_name':file_name})
 
         response['success'] = True
         return  response
 
     except Exception as e:
+        print("desde error.. ")
         print('Error: ', e)
         return { 'success': False, 'message': 'Something went wrong' }
 
 
-# =================================================================================================================== #
-# ============================================== RUTAS: FastAPI ===================================================== #
-# =================================================================================================================== #
 
-# /api/elasticsearch/create:
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+# /api/elasticsearch/create: Create the elasticsearch: db_scrapper
 @app.get("/api/elasticsearch/create")
-def create_root():  
-    """
-    En Elasticsearch se crean los índices (DB_NAME = 'db_scrapper')
-    Si ya existe el índice, entonces retorna los documentos actuales
-    """
+def create_root():
     return create_index()
 
-# /api/elasticsearch/refresh:
+# /api/elasticsearch/refresh: Refresh the elasticsearch indexes
+# For example, if we have a new file in the folder, we need to refresh the indexes
 @app.get("/api/elasticsearch/refresh")
 def refresh_root():
-    """
-    Refresca los documentos, revisando si hay más elementos por agregar al Elasticsearch
-    """
     return refresh_indexes()
 
-# /api/delete:
 @app.get("/api/delete")
 def delete():
-    """
-    Función de testeo para eliminar completamente DB_NAME
-    """
-
     # Crea una instancia de Elasticsearch
     es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 
     try:
-         es.indices.delete(index=DB_NAME)
+        # Envía una solicitud DELETE para eliminar todos los índices
+         es.indices.delete(index="db_scrapper")
+        
     except:
-        return{"success": False, "message" : "Something went wrong"}
+        return{"status" : "error...."}
 
-    return { "success": True, "message": f"DB: {DB_NAME} Successfully deleted"}
+        
+    
+    return { 'success': True, 'message': 'Se han eliminado los indices' }
     
 
-# /api/elasticsearch/search
-# /api/elasticsearch/search?q={query}
+
+# /api/elasticsearch/search: Search in the elasticsearch indexes
 @app.get("/api/elasticsearch/search")
 def search_root(q: str = Query(None, min_length=3, max_length=50)):
-    """
-    Buscar elementos en Elasticsearch (documentos obtenidos por scrapper)
-    Params:
-        Largo míninmo 3, Largo máximo 50
-        q: str | None
-        return: documentos
-    """
 
-    # --- Si no hay Query ---
-    # /api/elasticsearch/search
-    # Entonces retorna todos los documentos
+    # Si no hay query, es decir se busca por /api/elasticsearch/search
+    # entonces retorna todos los documentos
     if q is None:
         q = {
             "match_all": {},
         }
-       # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=q)
+       # --- Searching in the index ---
+        resp = es.search(index="db_scrapper", query=q)
+        print(resp)
+        print("cantidad de respuestas jiji", len(resp['hits']['hits']))
         finalResp = []
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
             url = hit['_source']['url']
             content = hit['_source']['content']
-
-            # maintitle = title.split(".")[1]
-            temp = { 'maintitle': title, 'link': url, 'content': content}
+            maintitle = title.split(".")[1]
+            temp = { 'maintitle': maintitle, 'link': url, 'content': content}
             finalResp.append(temp)
             # print(finalResp)
         # Return full response
         encoded_item = jsonable_encoder({ 'success': True, 'data': finalResp })
         return encoded_item
 
-    # --- Si hay Query ---
-    # /api/elasticsearch/search?q={query}
-    # Entonces retorna los documentos coincidentes
+    print("hola")
+    print("aca la consulta ", Query )
+    # q: str = Query(None, min_length=3, max_length=50)
+    # ···> Query: None, min_length: 3, max_length: 50
 
+    # We need to search in the index for the query
+    # If we have a match, then return it
+    # If we don't have a match, then return an error
+    
     try:
-        # NOTA: 'content' es el campo que queremos buscar en el índice de Elasticsearch (campo que nosotros creamos)
-        # query: Es el query que queremos buscar
+        # NOTE: 'content' field is the field that we want to search (in the index)
+        # query: It's the query that we want to search
         query = {
             "match": {
                 "content": q,
             },
         }
 
-        # highlight: Es la parte que queremos 'destacar'
+        # highlight: It's the highlight (the text that we want to highlight)
         highlight = {
             "fields": {
                 "content": {
@@ -299,92 +283,86 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
             },
         }
 
-        # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=query, highlight=highlight)
+        # --- Searching in the index ---
+        resp = es.search(index="db_scrapper", query=query, highlight=highlight)
+        print(resp)
+        print("cantidad de respuestas jiji", len(resp['hits']['hits']))
         finalResp = []
-
-        # hits.hits <··· Respuestas encontradas en Elasticsearch
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
             url = hit['_source']['url']
+            print(hit.keys())
+            print(hit['highlight'])
             content = hit['highlight']['content']
-            # maintitle = title.split(".")[1]
-            temp = { 'maintitle': title, 'link': url, 'content': content}
+
+
+            maintitle = title.split(".")[1]
+            temp = { 'maintitle': maintitle, 'link': url, 'content': content}
             finalResp.append(temp)
+            # print(finalResp)
+        # Return full response
+        
+
         encoded_item = jsonable_encoder({ 'success': True, 'data': finalResp })
         return encoded_item
 
     except Exception as e:
+
+        print('Error: ', e)
         encoded_item = jsonable_encoder({ 'success': False, 'message': 'Something went wrong. Try adding a query ex: <search?q=audifonos>' })
         return encoded_item
 
 
-# /api/elasticsearch/link_path_scrapper
-@app.post("/api/elasticsearch/link_path_scrapper")
-async def add_link_path(link_path_scrapper: dict):
-    """
-    Agregar links dado un path.
-    Esta solicitud está pensada para los scrappers  
-    Entrada esperada ej:
-    {
-        "link_path_scrapper":"/home/alex/Desktop/info288/proyecto/docs_indice_invertido/scraping/esclavo2/data/www.youtube.com_24.txt"
-    }
-    """
-
-    if not link_path_scrapper:
-        return  { 'success': False, 'message': 'Something went wrong.'}
-
-    # Si las llaves no corresponden retornamos error
-    for clave in link_path_scrapper.keys():
-        if (clave != "link_path_scrapper"):
-            return  { 'success': False, 'message': 'Something went wrong.'}
-
+ 
+@app.post("/api/elasticsearch/linkPath_scrapper")
+async def linkPath_scrapper(linkPath_scrapper: dict):
+    if not linkPath_scrapper:
+        raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 
     # LINK PATH : /home/alex/Desktop/info288/proyecto/docs_indice_invertido/scraping/esclavo2/data/www.youtube.com_24.txt
-    try:
-        # Nos conectamos a Mariadb/Mysql 
-        link_content = link_path_scrapper['link_path_scrapper']
-        cursor_1 = conexion.cursor()
-        cursor_1.execute(f"SELECT link FROM documentos WHERE path = '{link_content}'")
-        url = cursor_1.fetchone()
-
-        # Se verifica si el url es None o no
-        print("url: ", url)
-        if url is None:
-            print("El elemento no existe en la base de datos")
-            return {"success": False, "message": "El elemento no existe en la base de datos"}
-        cursor_1.close()
-
-        # Leemos el archivo
-        file_name = link_content.split("/")[-1].split(".")[1]
-
-    except Exception as e:
-        print("Error: ", e)
-        return  { "success": False, "message": "Something went wrong."}
-
     # Add : maintitle, url, content
+    link_content = linkPath_scrapper['linkPath_scrapper']
+    
+    # conexino mariadb
+    cursor_1 = conexion.cursor()
+    # Se ejecuta la consulta SQL
+    cursor_1.execute(f"SELECT link FROM documentos WHERE path = '{link_content}'")
+    url = cursor_1.fetchone()
+
+    # Se verifica si el url es None o no
+    print("url: ", url)
+    if url is None:
+        print("El elemento no existe en la base de datos")
+        return {"status": "error", "message": "El elemento no existe en la base de datos"}
+    cursor_1.close()
+
+    # Read the file
+    print("linkPath_scrapper: ", link_content)
+    file_name = link_content.split("/")[-1].split(".")[1]
+
+    print("file_name: ", file_name)
+    print("url: ", url[0])
     try:
         with open(link_content, 'r', encoding='ISO-8859-1')  as f:
             file_content = f.read()
-            es.index(index=DB_NAME, id=file_name, document={
+            es.index(index='db_scrapper', id=file_name, document={
                 'title': file_name,
                 'content': file_content,
                 'url' : url,
             })
-            return { "success": True, "message": "Se ha indexado el archivo"}
+            return { 'success': True, 'message': 'Se ha indexado el archivo'}
 
     except Exception as e:
-        print("Error: ", e)
-        return { "success": False, "message": "Something went wrong" }
+        print('Error: ', e)
+        return { 'success': False, 'message': 'Something went wrong' }
 
-# /api/links
 @app.post("/api/links")
 async def get_link(link: dict):
     
     if not link:
         raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 
-    #TODO Ver si existe un link igual en la base de datos, si existe no agregarlo, si no, agregarlo
+#TODO Ver si existe un link igual en la base de datos, si existe no agregarlo, si no, agregarlo
 
     #####
     hoara_desc = "17:00:00"
@@ -397,23 +375,21 @@ async def get_link(link: dict):
 
     return JSONResponse(content={"message": link})
 
-
-
-# =================================================================================================================== #
-# ===================================================== MAIN ======================================================== #
-# =================================================================================================================== #
-
 # ASI SE EJECUTA :  se envia como json en un body
 
 # {
 #     "link": "https://www.example.com"
 # }
+
+    
+
+    
+
     
 #     ##refresh_indexes()
 
 #     uvicorn.run(app, host="0.0.0.0", port=8000)
 
-# ==
 
 if __name__ == "__main__":
    
