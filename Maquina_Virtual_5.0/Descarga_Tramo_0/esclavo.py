@@ -18,29 +18,29 @@ PORT = os.getenv("PORT_SLAVE")
 app = Flask(__name__)
 
 ## guarda los datos scrapiados en un archivo txt -> el nombre del archivo es el dominio con un identificador
-def escribir_archivo(url,data):
-    with open('./data/{}.txt'.format(url), 'w') as archivo:
-        archivo.write(data)
+def writeTxt(url,data):
+    with open('./data/{}.txt'.format(url), 'w') as txt:
+        txt.write(data)
 
 ## obtener un diferenciador para la  paginas con el mismo dominio
-def obtener_dominio(url): 
-    cant= len(url)
-    cant= "" + str(cant)
+def obtainDomain(url): 
+    quantity = len(url)
+    quantity = "" + str(quantity)
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
     
-    return domain+"_"+cant 
+    return domain+"_"+quantity  
 
 
-## definicion  de un latido para saber que el servidor esta disponible
-@app.route('/latido',  methods=['GET'])
-def latido():
+## definicion  de un beat para saber que el servidor esta disponible
+@app.route('/beat',  methods=['GET'])
+def beat():
     return  ({'status': "ok" })
 
 
 ###definicon /scrapi -> en esta parte  realiza el scrapeo de la pagina enviada.
 @app.route('/scrapi',  methods=['POST'])
-def scraping_data():
+def scrapingData():
     
     data = ""
     url = request.get_json('url_scraping')
@@ -57,8 +57,8 @@ def scraping_data():
         for word in words:
             data += word + "\n"
         
-        domain = obtener_dominio(url)
-        escribir_archivo(domain,data)
+        domain = obtainDomain(url)
+        writeTxt(domain,data)
         return ({'status': "ok" })
     except:
         print("error...")
