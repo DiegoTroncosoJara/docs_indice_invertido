@@ -1,6 +1,0 @@
-flask
-request
-beautifulsoup4
-urlparse4
-
-
