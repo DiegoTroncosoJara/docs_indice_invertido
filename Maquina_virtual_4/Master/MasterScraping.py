@@ -74,7 +74,7 @@ def callElasticSearch():
 ##funcion que inicializa los esclavos disponibles 
 def initSlaves(): 
     global SLAVES
-    slaves_quantity = int((os.getenv("ESCLAVOS_quantity ")))
+    slaves_quantity = int((os.getenv("ESCLAVOS_quantity")))
     for i in range(slaves_quantity):
         aux = os.getenv("URL_ESCLAVO_{}".format(str(i)))
         slave_status = checkSlaveStatus(aux)
