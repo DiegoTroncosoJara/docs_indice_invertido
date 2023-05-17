@@ -1,6 +1,5 @@
-flask
-request
+Flask
+requests
 beautifulsoup4
-urlparse4
 python-dotenv
 
