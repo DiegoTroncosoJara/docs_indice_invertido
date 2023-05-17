@@ -1,28 +1,7 @@
-import axios from "axios";
 
-import json from "../db/obj.json";
-
-const obtener_busqueda = async (results) => {
-  await axios
-    .get("http://localhost:8000/api/elasticsearch/search?q=pcfactory")
-    .then((response) => {
-      // La respuesta del servidor está disponible en 'response.data'
-      console.log(response.data);
-      if (response.success === true) {
-        console.log(response.data);
-        return response.data;
-      }
-    })
-    .catch((error) => {
-      console.log("un error... ");
-      console.error(error);
-    });
-};
-
-const obtener_busqueda2 = async (query) => {
-  console.log('FETCHING FROM "obtener_busqueda2 (QUERY)"');
+const getSearchResponse= async (query) => {
   const data = await fetch(
-    `http://0.0.0.0:8000/api/elasticsearch/search?q=${query}}`
+    `http://0.0.0.0:8000/api/elasticsearch/search?q=${query}`
   )
     .then((response) => response.json())
     .then((data) => {
@@ -36,16 +15,13 @@ const obtener_busqueda2 = async (query) => {
 
   switch (data?.success) {
     case true:
-      console.log("data.success === true");
-      console.log(data.data);
       return data.data;
     default:
       return [];
   }
 };
 
-const obtener_busqueda_default = async () => {
-  console.log('FETCHING FROM "obtener_busqueda_default"');
+const getAllResults= async () => {
   const data = await fetch(`http://0.0.0.0:8000/api/elasticsearch/search`)
     .then((response) => response.json())
     .then((data) => {
@@ -59,23 +35,21 @@ const obtener_busqueda_default = async () => {
 
   switch (data?.success) {
     case true:
-      console.log("data.success === true");
       return data.data;
     default:
       return [];
   }
 };
 
+// hook que entrega resultados a partir de una busqueda
 export async function useResults(query) {
-  // const results = json;
-
   let results;
+
   if (query === undefined || query === null || query === "") {
-    results = await obtener_busqueda_default();
+    results = await getAllResults();
   } else {
-    results = await obtener_busqueda2(query);
+    results = await getSearchResponse(query);
   }
-  console.log("FROM useResults: results: ", results);
 
   const mappedResults = results?.map((res) => ({
     id: res.link,

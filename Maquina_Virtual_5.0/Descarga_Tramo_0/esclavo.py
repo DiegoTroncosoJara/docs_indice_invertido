@@ -33,7 +33,7 @@ def obtainDomain(url):
 
 
 ## definicion  de un beat para saber que el servidor esta disponible
-@app.route('/beat',  methods=['GET'])
+@app.route('/latido',  methods=['GET'])
 def beat():
     return  ({'status': "ok" })
 

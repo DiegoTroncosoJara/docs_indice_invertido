@@ -3,7 +3,7 @@ FROM python:3.9-alpine
 RUN apt-get update 
 
 WORKDIR /DescargaTramo0
-COPY DescargaTramo0 ./
+COPY ./ /Descarga_Tramo_0
 
 RUN pip install -r requirements.txt
 CMD ["python", "esclavo.py"]
