@@ -1,4 +1,4 @@
-FROM mysql:latest
+FROM mysql:lates
 
 # Copiar el archivo SQL a la carpeta "docker-entrypoint-initdb.d"
 # para que se ejecute automáticamente al iniciar el contenedor
