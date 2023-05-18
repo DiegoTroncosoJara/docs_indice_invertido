@@ -34,7 +34,7 @@ origins = [
 
 
 # ----- Variables: Globales ----- #
-datos = []
+data = []
 list_names = []
 list_path = []
 
@@ -68,7 +68,7 @@ DB_NAME = 'db_scrapper'
 # =================================================================================================================== #
 
 # /api/elasticsearch/refresh
-def obtain_domain_name(path):
+def obtainDomainPath(path):
     """
     Obtiene el dominio de un path
     """
@@ -86,40 +86,40 @@ def obtain_domain_name(path):
     return path
 
 # /api/elasticsearch/refresh
-def db_call():
+def dbCall():
     """
     Carga datos con link y path
     """
-    global datos
+    global data
     cursor = conexion.cursor()
-    consulta = "SELECT  link, path FROM  documentos"
-    cursor.execute(consulta)
-    datos = cursor.fetchall()
-    ##datos = [elemento for dupla in datos for elemento in dupla]
+    query = "SELECT  link, path FROM  documentos"
+    cursor.execute(query)
+    data = cursor.fetchall()
+    ##data = [elemento for dupla in datos for elemento in dupla]
 
 # /api/elasticsearch/refresh
-def initialize_global_data():
+def initializeGlobalData():
     """
     Carga los datos para list_names, list_path y datos
     Información para verificar que está todo cargado y listo
     """
     global list_names
     global list_path
-    global datos
+    global data
     list_names = []
     list_path = []
-    datos = []
-    db_call()
+    data = []
+    dbCall()
     
-    # datos contiene link, path por cada documento
-    for i in datos:
-        nombre_link = obtain_domain_name(i[0])
+    # data contiene link, path por cada documento
+    for i in data:
+        nombre_link = obtainDomainPath(i[0])
         list_names.append(nombre_link)
         list_path.append(i[1])
 
 
 # /api/elasticsearch/create
-def create_index():
+def createIndex():
     """
     Crea el índice "DB_NAME"
     Si ya está creado, devuelve los documentos que hay
@@ -159,14 +159,14 @@ def create_index():
             return { 'success': False, 'message': 'Something went wrong' }
 
 # /api/elasticsearch/refresh
-def refresh_indexes():
+def refreshIndexes():
     """
         Refresca los índices, comparativa que hace utilizando la base de datos.    
     """ 
     
     global list_names
     global list_path
-    initialize_global_data()
+    initializeGlobalData()
 
     response = {
         'already_exists': [],
@@ -177,7 +177,7 @@ def refresh_indexes():
         for i in range(len(list_path)):
 
             file_name = list_names[i]
-            url = datos[i][0]
+            url = data[i][0]
             
             try:
                 es.get(index=DB_NAME, id=file_name)
@@ -209,43 +209,44 @@ def refresh_indexes():
 
 # /api/elasticsearch/create:
 @app.get("/api/elasticsearch/create")
-def create_root():  
+def createRoot():  
     """
     En Elasticsearch se crean los índices (DB_NAME = 'db_scrapper')
     Si ya existe el índice, entonces retorna los documentos actuales
     """
-    return create_index()
+    return createIndex()
 
 # /api/elasticsearch/refresh:
 @app.get("/api/elasticsearch/refresh")
-def refresh_root():
+def refreshRoot():
     """
     Refresca los documentos, revisando si hay más elementos por agregar al Elasticsearch
     """
-    return refresh_indexes()
+    return refreshIndexes()
 
 # /api/delete:
-@app.get("/api/delete")
-def delete():
-    """
-    Función de testeo para eliminar completamente DB_NAME
-    """
+# @app.get("/api/delete")
+# def delete():
+#     """
+#     Función de testeo para eliminar completamente DB_NAME
+#     Está comentado, y que se utilizó para pruebas, pero dejar una ruta así podría ser peligroso. Ya que cualquier persona podría eliminar todo el índice
+#     """
 
-    # Crea una instancia de Elasticsearch
-    es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
+#     # Crea una instancia de Elasticsearch
+#     es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 
-    try:
-         es.indices.delete(index=DB_NAME)
-    except:
-        return{"success": False, "message" : "Something went wrong"}
+#     try:
+#          es.indices.delete(index=DB_NAME)
+#     except:
+#         return{"success": False, "message" : "Something went wrong"}
 
-    return { "success": True, "message": f"DB: {DB_NAME} Successfully deleted"}
+#     return { "success": True, "message": f"DB: {DB_NAME} Successfully deleted"}
     
 
 # /api/elasticsearch/search
 # /api/elasticsearch/search?q={query}
 @app.get("/api/elasticsearch/search")
-def search_root(q: str = Query(None, min_length=3, max_length=50)):
+def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
     """
     Buscar elementos en Elasticsearch (documentos obtenidos por scrapper)
     Params:
@@ -263,7 +264,7 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
         }
        # --- Buscando en el índice DB_NAME ---
         resp = es.search(index=DB_NAME, query=q)
-        finalResp = []
+        final_resp = []
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
             url = hit['_source']['url']
@@ -271,10 +272,10 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
 
             # maintitle = title.split(".")[1]
             temp = { 'maintitle': title, 'link': url, 'content': content}
-            finalResp.append(temp)
-            # print(finalResp)
+            final_resp.append(temp)
+            # print(final_resp)
         # Return full response
-        encoded_item = jsonable_encoder({ 'success': True, 'data': finalResp })
+        encoded_item = jsonable_encoder({ 'success': True, 'data': final_resp })
         return encoded_item
 
     # --- Si hay Query ---
@@ -301,7 +302,7 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
 
         # --- Buscando en el índice DB_NAME ---
         resp = es.search(index=DB_NAME, query=query, highlight=highlight)
-        finalResp = []
+        final_resp = []
 
         # hits.hits <··· Respuestas encontradas en Elasticsearch
         for hit in resp['hits']['hits']:
@@ -310,8 +311,8 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
             content = hit['highlight']['content']
             # maintitle = title.split(".")[1]
             temp = { 'maintitle': title, 'link': url, 'content': content}
-            finalResp.append(temp)
-        encoded_item = jsonable_encoder({ 'success': True, 'data': finalResp })
+            final_resp.append(temp)
+        encoded_item = jsonable_encoder({ 'success': True, 'data': final_resp })
         return encoded_item
 
     except Exception as e:
@@ -321,7 +322,7 @@ def search_root(q: str = Query(None, min_length=3, max_length=50)):
 
 # /api/elasticsearch/link_path_scrapper
 @app.post("/api/elasticsearch/link_path_scrapper")
-async def add_link_path(link_path_scrapper: dict):
+async def addLinkPath(link_path_scrapper: dict):
     """
     Agregar links dado un path.
     Esta solicitud está pensada para los scrappers  
@@ -379,12 +380,12 @@ async def add_link_path(link_path_scrapper: dict):
 
 # /api/links
 @app.post("/api/links")
-async def get_link(link: dict):
+async def getLink(link: dict):
     
     if not link:
         raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 
-    #TODO Ver si existe un link igual en la base de datos, si existe no agregarlo, si no, agregarlo
+    
 
     #####
     hoara_desc = "17:00:00"
@@ -409,7 +410,7 @@ async def get_link(link: dict):
 #     "link": "https://www.example.com"
 # }
     
-#     ##refresh_indexes()
+#     ##refreshIndexes()
 
 #     uvicorn.run(app, host="0.0.0.0", port=8000)
 
