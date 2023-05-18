@@ -2,10 +2,10 @@ FROM python:3.9-alpine
 
 
 
-WORKDIR /Descarga_tramo_1
+WORKDIR /Descarga_tramo_2
 COPY . . 
 
 RUN pip install -r requirements.txt
-CMD ["python", "esclavo.py"]
+CMD ["python", "MasterScraping.py"]
 
-EXPOSE 6000
+EXPOSE 5003

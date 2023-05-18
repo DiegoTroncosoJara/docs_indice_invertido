@@ -3,4 +3,5 @@ python-daemon
 requests
 bs4
 Flask
-mysql.connector
+mysql-connector-python
+python-dotenv

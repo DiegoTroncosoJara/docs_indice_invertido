@@ -1,0 +1,43 @@
+version: "3"
+services:
+  descargatrano_0:
+        build:
+            context: ./Maquina_Virtual_5.0
+            dockerfile: /Descarga_Tramo_0/Dockerfile
+        container_name: descargatrano_0
+        networks:
+          - network
+
+        ports:
+          - "5001:5001"
+        
+        restart: 'always'
+        
+  descargatrano_1:
+        build:
+            context: ./Maquina_Virtual_5.1
+            dockerfile: /Descarga_Tramo_1/Dockerfile
+        container_name: descargatrano_1
+        networks:
+          - network
+
+        ports:
+          - "5002:5002"
+        
+        restart: 'always'
+  descargatrano_2:
+        build:
+            context: ./Maquina_Virtual_5.2
+            dockerfile: /Descarga_Tramo_1/Dockerfile
+        container_name: descargatrano_2
+
+        networks:
+          - network
+
+        ports:
+          - "5003:5003"
+        
+        restart: 'always'
+
+networks:
+  network: {}
