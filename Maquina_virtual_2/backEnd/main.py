@@ -388,11 +388,11 @@ async def getLink(link: dict):
     
 
     #####
-    hoara_desc = "17:00:00"
+    hora_desc = "17:00:00"
     link_final = link["link"]
     print("link: ",link_final)
-    query_db = "INSERT INTO documentos (link, hoara_desc) VALUES (%s, %s)"
-    values_db = (link_final, hoara_desc)
+    query_db = "INSERT INTO documentos (link, hora_desc) VALUES (%s, %s)"
+    values_db = (link_final, hora_desc)
     cursor.execute(query_db, values_db)
     conexion.commit()
 

@@ -18,7 +18,7 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-CREATE TABLE `descargaEstado` (
+CREATE TABLE `descarga_estado` (
   `id` int NOT NULL AUTO_INCREMENT,
   `descarga_iniciada` datetime DEFAULT NULL,
   `error` tinyint(1) DEFAULT NULL,
@@ -29,14 +29,14 @@ CREATE TABLE `descargaEstado` (
 CREATE TABLE `documentos` (
   `id` int NOT NULL AUTO_INCREMENT,
   `link` varchar(255) DEFAULT NULL,
-  `hoara_desc` time DEFAULT NULL,
+  `hora_desc` time DEFAULT NULL,
   `path` varchar(255) DEFAULT NULL,
   `ultima_desc` time DEFAULT NULL,
   `id_esclavo` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `documentos` (`id`, `link`, `hoara_desc`, `path`, `ultima_desc`, `id_esclavo`) VALUES
+INSERT INTO `documentos` (`id`, `link`, `hora_desc`, `path`, `ultima_desc`, `id_esclavo`) VALUES
 (1, 'https://www.pcfactory.cl/', '16:30:00', '/Users/basti/Desktop/Primer_Semestre_2023/distribuidos/docs_indice_invertido/code/scraping_dato/esclavo0/data/www.pcfactory.cl_25.txt', '08:12:23', 0),
 (2, 'https://www.falabella.com/', '17:00:00', '/Users/basti/Desktop/Primer_Semestre_2023/distribuidos/docs_indice_invertido/code/scraping_dato/esclavo1/data/www.falabella.com_26.txt', '08:12:23', 1),
 (3, 'https://www.uach.cl/', '17:00:00', '/Users/basti/Desktop/Primer_Semestre_2023/distribuidos/docs_indice_invertido/code/scraping_dato/esclavo2/data/www.uach.cl_20.txt', '08:12:23', 2),
