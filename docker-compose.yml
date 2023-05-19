@@ -1,5 +1,33 @@
 version: "3"
 services:
+
+  front-end:
+        build:
+            context: ./Maquina_Virtual_1
+            dockerfile: /frontend/Dockerfile
+        container_name: frontend
+        networks:
+          - network
+
+        ports:
+          - "3000:3000"
+        
+        restart: 'always'
+
+  Descarga_master:
+        build:
+            context: ./Maquina_Virtual_4
+            dockerfile: /Master/Dockerfile
+        container_name: Descargamaster
+        networks:
+          - network
+
+        ports:
+          - "4000:4000"
+        
+        restart: 'always'
+          
+
   descargatrano_0:
         build:
             context: ./Maquina_Virtual_5.0
@@ -9,7 +37,7 @@ services:
           - network
 
         ports:
-          - "5001:5001"
+          - "4000:4001"
         
         restart: 'always'
         
@@ -22,7 +50,7 @@ services:
           - network
 
         ports:
-          - "5002:5002"
+          - "4002:4002"
         
         restart: 'always'
   descargatrano_2:
@@ -35,7 +63,50 @@ services:
           - network
 
         ports:
-          - "5003:5003"
+          - "4003:4003"
+        
+        restart: 'always'
+
+  my-elasticsearch:8.7.1:
+        build:
+            context: ./Maquina_Virtual_2
+            dockerfile: /elasticsearch-8.7.1/Dockerfile
+        container_name: my-elasticsearch:8.7.1
+
+        networks:
+          - network
+
+        ports:
+           - 9200:9200
+
+        
+        restart: 'always'
+
+  back-end:
+        build:
+            context: ./Maquina_Virtual_2
+            dockerfile: /backEnd/Dockerfile
+        container_name: backend
+
+        networks:
+          - network
+
+        ports:
+          - 5000:5000
+
+        restart: 'always'
+
+  base_de_datos:
+        build:
+            context: ./Maquina_Virtual_3
+            dockerfile: /base _de_datos/Dockerfile
+        container_name: base_de_datos_my_sql
+
+        networks:
+          - network
+
+        ports:
+          - 3306:3306
         
         restart: 'always'
 

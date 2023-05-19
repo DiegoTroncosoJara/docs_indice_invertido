@@ -2623,15 +2623,15 @@ minutos
 Vigencia
 Promoción
 Jueves
-04
+18
 05
 2023
 00
 00
 al
-Miércoles
-17
+Lunes
 05
+06
 2023
 23
 59
@@ -3394,7 +3394,7 @@ ID
 37545
 6
 Unid
-299
+229
 990
 Precio
 Oferta
