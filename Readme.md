@@ -22,6 +22,5 @@
 ## Si, por el contrario, deseas levantar un módulo independiente, debes dirigirte a la máquina correspondiente y leer su archivo "readme" correspondiente. 
 
 -------------------------------------------------------------------------------------------------------------------------------
-
-
-
+# importante
+### En la carpeta de documentación encontrarás un manual que incluye instrucciones tanto para el despliegue como para el uso de nuestra aplicación.
