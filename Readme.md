@@ -2,7 +2,7 @@
 
 ## 1) tener instalado  docker en la maquina. 
 
-## 2) abrir una terminar 
+## 2) abrir una terminal
 
 ## 3) estar posicionado en la carpeta /docs_indice_invertido
 
