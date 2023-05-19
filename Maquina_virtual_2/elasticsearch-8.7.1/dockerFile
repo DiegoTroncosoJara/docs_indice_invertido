@@ -1,0 +1,7 @@
+FROM docker.elastic.co/elasticsearch/elasticsearch:8.7.1
+
+# Configuraciones adicionales si es necesario
+# COPY <ruta_archivo_config> /usr/share/elasticsearch/config/<nombre_archivo_config>
+COPY /elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
+# Comando para iniciar Elasticsearch
+CMD ["elasticsearch"]

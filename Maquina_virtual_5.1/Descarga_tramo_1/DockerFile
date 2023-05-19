@@ -1,0 +1,11 @@
+FROM python:3.9-alpine
+
+
+
+WORKDIR /Descarga_tramo_1
+COPY . . 
+
+RUN pip install -r requirements.txt
+CMD ["python", "esclavo.py"]
+
+EXPOSE 4001
