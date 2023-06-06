@@ -37,6 +37,23 @@ def obtainDomain(url):
 def beat():
     return  ({'status': "ok" })
 
+#permite devolver el contenido de los archivos
+@app.route('/leer', methods=['POST'])
+def readFile():
+    file_path = request.get_json('file_path')
+    file_path =  file_path['file_path']
+    
+    # Ruta al archivo TXT en el servidor
+    # Leer el contenido del archivo
+    try: 
+        with open(file_path, 'r') as file:
+            content = file.read()
+
+        # Devolver 
+        return jsonify({'content': content})
+    except:
+        return jsonify({'error': 'error en leer el archivo.....'})
+
 
 ###definicon /scrapi -> en esta parte  realiza el scrapeo de la pagina enviada.
 @app.route('/scrapi',  methods=['POST'])
