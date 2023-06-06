@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from elasticsearch import Elasticsearch
 from datetime import datetime
 ## Otros
-
+import requests
 import os
 import uvicorn
 
@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 
-
+#
 # ----- Cargar .env ----- #
 
 load_dotenv()
@@ -37,6 +37,8 @@ origins = [
 data = []
 list_names = []
 list_path = []
+list_id = []
+SLAVES = {}
 
 # ----- Conexión: DB MariaDB/Mysql ----- #
 conexion = mysql.connector.connect(
@@ -62,6 +64,24 @@ app.add_middleware(
 # ----- Conexión: ELasticsearch ----- #
 es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 DB_NAME = 'db_scrapper'
+
+
+
+
+def GetUrlSlaves(): 
+    global SLAVES
+    slaves_quantity = int((os.getenv("ESCLAVOS_quantity")))
+    for i in range(slaves_quantity):
+        aux = os.getenv("URL_ESCLAVO_{}".format(str(i)))
+        SLAVES[str(i)] = aux
+            
+    
+
+
+    
+
+
+
 
 # =================================================================================================================== #
 # ===================================== FUNCIONES PARA RUTAS: FastAPI =============================================== #
@@ -92,7 +112,7 @@ def dbCall():
     """
     global data
     cursor = conexion.cursor()
-    query = "SELECT  link, path FROM  documentos"
+    query = "SELECT  link, path , id_esclavo FROM  documentos"
     cursor.execute(query)
     data = cursor.fetchall()
     ##data = [elemento for dupla in datos for elemento in dupla]
@@ -105,9 +125,11 @@ def initializeGlobalData():
     """
     global list_names
     global list_path
+    global list_id
     global data
     list_names = []
     list_path = []
+    list_id = []
     data = []
     dbCall()
     
@@ -116,6 +138,24 @@ def initializeGlobalData():
         nombre_link = obtainDomainPath(i[0])
         list_names.append(nombre_link)
         list_path.append(i[1])
+        list_id.append(i[2])
+
+def bringDataFile(file_path, id_slave):
+    
+        print(file_path)
+        url = "{}leer".format(SLAVES[str(id_slave)])
+        response = requests.post(url, json={
+            "file_path" : file_path
+        })
+
+        if response.status_code == 200:
+            result = response.json()
+            result = result["content"]
+            return result
+            
+    
+    
+
 
 
 # /api/elasticsearch/create
@@ -166,6 +206,7 @@ def refreshIndexes():
     
     global list_names
     global list_path
+    global list_id
     initializeGlobalData()
 
     response = {
@@ -185,15 +226,14 @@ def refreshIndexes():
 
 
             except:
-                with open(list_path[i], 'r', encoding='ISO-8859-1')  as f:
-                    file_content = f.read()
-                    es.index(index=DB_NAME, id=file_name, document={
+                file_content = bringDataFile(list_path[i], list_id[i])
+                es.index(index=DB_NAME, id=file_name, document={
                         'title': file_name,
                         'content': file_content,
                         'url' : url,
                         'timestamp': datetime.now()
-                    })
-                    response['successfully_indexed'].append({'file_name':file_name})
+                })
+                response['successfully_indexed'].append({'file_name':file_name})
 
         response['success'] = True
         return  response
@@ -225,22 +265,22 @@ def refreshRoot():
     return refreshIndexes()
 
 # /api/delete:
-# @app.get("/api/delete")
-# def delete():
-#     """
-#     Función de testeo para eliminar completamente DB_NAME
-#     Está comentado, y que se utilizó para pruebas, pero dejar una ruta así podría ser peligroso. Ya que cualquier persona podría eliminar todo el índice
-#     """
+@app.get("/api/delete")
+def delete():
+    """
+    Función de testeo para eliminar completamente DB_NAME
+    Está comentado, y que se utilizó para pruebas, pero dejar una ruta así podría ser peligroso. Ya que cualquier persona podría eliminar todo el índice
+    """
 
-#     # Crea una instancia de Elasticsearch
-#     es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
+    # Crea una instancia de Elasticsearch
+    es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 
-#     try:
-#          es.indices.delete(index=DB_NAME)
-#     except:
-#         return{"success": False, "message" : "Something went wrong"}
+    try:
+         es.indices.delete(index=DB_NAME)
+    except:
+        return{"success": False, "message" : "Something went wrong"}
 
-#     return { "success": True, "message": f"DB: {DB_NAME} Successfully deleted"}
+    return { "success": True, "message": f"DB: {DB_NAME} Successfully deleted"}
     
 
 # /api/elasticsearch/search
@@ -413,9 +453,18 @@ async def getLink(link: dict):
 #     ##refreshIndexes()
 
 #     uvicorn.run(app, host="0.0.0.0", port=8000)
-
+ 
 # ==
 
 if __name__ == "__main__":
    
-    uvicorn.run(app, host="0.0.0.0", port=port)
+#    initializeGlobalData()
+   GetUrlSlaves() 
+#    print(SLAVES)
+#    for i in range(len(list_path)):
+       
+#        contenido = bringDataFile(list_path[i], list_id[i])
+#        print("----------------------------------------")
+#        print("a")
+   
+uvicorn.run(app, host="0.0.0.0", port=port)

@@ -122,11 +122,14 @@ def sendRequest(url, url_data):
     response = requests.post('{}/scrapi'.format(url), json=data)
     if response.status_code == 200:
         print('La solicitud fue exitosa.')
+        result = response.json()
+        return result["file_path"]
+
     else:
         print('La solicitud falló con el código de estado:', response.status_code)
-    result = response.json()
+        return "None"
     # data = json.loads(response.text)
-    print(result)
+    
 
 def getMinSlave():
     min_slave = SLAVES[0]
@@ -137,9 +140,9 @@ def getMinSlave():
 
 def sendLoadBalancedRequest(url_data):
     min_slave , index_min_slave = getMinSlave()
-    sendRequest(min_slave[0],url_data)
+    path_data = sendRequest(min_slave[0],url_data)
     SLAVES[SLAVES.index(min_slave)] = (min_slave[0], min_slave[1] + 1)
-    return  index_min_slave 
+    return  index_min_slave , path_data
 ###----------------------------------------------------------------------------------#
 
 
@@ -200,7 +203,7 @@ def queryDB(config):
     return ROWS 
 
 ## cuando ya se realizo el scraping se incerta en la base de datos la informacion correspondinete como, hora, path y la id del esclavo que realizo es scraping
-def insertInDB(url,id_esclavo):
+def insertInDB(url,id_esclavo, path_data):
     conn = mysql.connector.connect(**config)
 
     cursor = conn.cursor()
@@ -214,7 +217,7 @@ def insertInDB(url,id_esclavo):
 
     id = object[0]
     url = obtainDomain(url)
-    absolute_path = os.path.abspath("esclavo{}/data/{}.txt".format(id_esclavo,url))
+    absolute_path =path_data
     ###"/esclavo{}/data/{}.txt".format(str(id_esclavo), url)
     ###actualiza la base de datos 
     query_update = 'UPDATE documentos SET path = %s, ultima_desc = %s, id_esclavo = %s  WHERE id = %s'
@@ -232,9 +235,9 @@ def startProgram():
     #Agregue aquí el código para realizar la consulta
     for row in ROWS:
         print(row[1])
-        min = sendLoadBalancedRequest(row[1])
+        min, path_data = sendLoadBalancedRequest(row[1])
         print(min)
-        insertInDB(row[1],min)
+        insertInDB(row[1],min, path_data)
         #peticion_esclavo(row[1])
     if(callElasticSearch()):
             print("se realizo llama al back-end")

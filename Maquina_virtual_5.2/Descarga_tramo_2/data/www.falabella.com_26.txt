@@ -20,15 +20,7 @@ falabella
 comTarjetas
 y
 cuentasVenta
-telefónicaNoviosAyudaPreviousNextPreviousNext
-Attribute
-1
-Attribute
-223Horas
-43Minutos
-50Segundos23Horas
-43Minutos
-50SegundosEspeciales
+telefónicaNoviosAyudaPreviousNextPreviousNextEspeciales
 por
 categoríaEspecial
 por
