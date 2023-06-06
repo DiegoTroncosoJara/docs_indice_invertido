@@ -226,7 +226,6 @@ def refreshIndexes():
 
 
             except:
-                  
                 file_content = bringDataFile(list_path[i], list_id[i])
                 es.index(index=DB_NAME, id=file_name, document={
                         'title': file_name,
@@ -266,22 +265,22 @@ def refreshRoot():
     return refreshIndexes()
 
 # /api/delete:
-# @app.get("/api/delete")
-# def delete():
-#     """
-#     Función de testeo para eliminar completamente DB_NAME
-#     Está comentado, y que se utilizó para pruebas, pero dejar una ruta así podría ser peligroso. Ya que cualquier persona podría eliminar todo el índice
-#     """
+@app.get("/api/delete")
+def delete():
+    """
+    Función de testeo para eliminar completamente DB_NAME
+    Está comentado, y que se utilizó para pruebas, pero dejar una ruta así podría ser peligroso. Ya que cualquier persona podría eliminar todo el índice
+    """
 
-#     # Crea una instancia de Elasticsearch
-#     es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
+    # Crea una instancia de Elasticsearch
+    es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 
-#     try:
-#          es.indices.delete(index=DB_NAME)
-#     except:
-#         return{"success": False, "message" : "Something went wrong"}
+    try:
+         es.indices.delete(index=DB_NAME)
+    except:
+        return{"success": False, "message" : "Something went wrong"}
 
-#     return { "success": True, "message": f"DB: {DB_NAME} Successfully deleted"}
+    return { "success": True, "message": f"DB: {DB_NAME} Successfully deleted"}
     
 
 # /api/elasticsearch/search
@@ -458,13 +457,14 @@ async def getLink(link: dict):
 # ==
 
 if __name__ == "__main__":
-   initializeGlobalData()
+   
+#    initializeGlobalData()
    GetUrlSlaves() 
-   print(SLAVES)
-   for i in range(len(list_path)):
+#    print(SLAVES)
+#    for i in range(len(list_path)):
        
-       contenido = bringDataFile(list_path[i], list_id[i])
-       print("----------------------------------------")
-       print("a")
-   pass
-    ##uvicorn.run(app, host="0.0.0.0", port=port)
+#        contenido = bringDataFile(list_path[i], list_id[i])
+#        print("----------------------------------------")
+#        print("a")
+   
+uvicorn.run(app, host="0.0.0.0", port=port)
