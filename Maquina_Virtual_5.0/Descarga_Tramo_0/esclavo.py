@@ -19,8 +19,11 @@ app = Flask(__name__)
 
 ## guarda los datos scrapiados en un archivo txt -> el nombre del archivo es el dominio con un identificador
 def writeTxt(url,data):
-    with open('./data/{}.txt'.format(url), 'w') as txt:
+    file_name = './data/{}.txt'.format(url)
+    file_path =  os.path.abspath(file_name)
+    with open(file_name, 'w') as txt:
         txt.write(data)
+    return file_path
 
 ## obtener un diferenciador para la  paginas con el mismo dominio
 def obtainDomain(url): 
@@ -52,7 +55,7 @@ def readFile():
         # Devolver 
         return jsonify({'content': content})
     except:
-        return jsonify({'error': 'error en leer el archivo.....'})
+        return jsonify({'content': 'error en leer el archivo.....'})
 
 
 ###definicon /scrapi -> en esta parte  realiza el scrapeo de la pagina enviada.
@@ -75,9 +78,10 @@ def scrapingData():
             data += word + "\n"
         
         domain = obtainDomain(url)
-        writeTxt(domain,data)
-        return ({'status': "ok" })
-    except:
+        file_path = writeTxt(domain,data)
+        
+        return ({'status': "ok" , 'file_path': file_path })
+    except: 
         print("error...")
         return   ({'status': "Algun error..." })
 
