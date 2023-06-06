@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 
-
+#
 # ----- Cargar .env ----- #
 
 load_dotenv()
