@@ -1,6 +1,7 @@
 from flask import Flask , jsonify, request
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import requests
+import random 
 from bs4 import BeautifulSoup
 import json
 import re
@@ -25,14 +26,58 @@ def writeTxt(url,data):
         txt.write(data)
     return file_path
 
+def writeLinkScarping(data):
+    with open("./data/link_for_scraping.txt", 'a') as txt:
+        txt.write(data)
+        ##txt.write("\n")
+
 ## obtener un diferenciador para la  paginas con el mismo dominio
 def obtainDomain(url): 
     quantity = len(url)
-    quantity = "" + str(quantity)
+    quantity = "" + str(quantity) 
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
     
     return domain+"_"+quantity  
+
+def scrapingLinks(url, links):
+    data = ""
+    urls = []
+    for link in links:
+            href = link.get('href')  # Obtener el atributo 'href'
+            if href:
+                absolute_url = urljoin(url, href)
+                urls.append(absolute_url)
+    
+    num_rand = random.randint(1,4)
+    print(num_rand)
+    print(len(urls))
+    for i in range(num_rand):
+        rand_link_cant = random.randint(0,len(urls))
+        
+        data +=  urls[rand_link_cant] +  "\n"
+
+    writeLinkScarping(data)
+    urls = []
+
+@app.route('/getlink',  methods=['GET'])
+def getlink():
+
+    with open("./data/link_for_scraping.txt", "r") as archivo:
+        lineas = archivo.readlines()
+
+    if(len(lineas)!=0):
+
+        indice_aleatorio = random.randint(0, len(lineas) - 1)
+        linea_aleatoria = lineas[indice_aleatorio]
+        linea_aleatoria = linea_aleatoria.rstrip()
+        del lineas[indice_aleatorio]
+
+        with open("./data/link_for_scraping.txt", "w") as archivo:
+            archivo.writelines(lineas)
+        return  jsonify ({'link': linea_aleatoria, "status" : "ok"  })
+    else: 
+       return  jsonify({ "status" : "ningunLink" }) 
 
 
 ## definicion  de un beat para saber que el servidor esta disponible
@@ -73,13 +118,21 @@ def scrapingData():
         soup = BeautifulSoup(response.text, 'html.parser') # Analizar el contenido HTML de la página
         # # Extraer todas las palabras clave de la página web
         words = re.findall('\w+', soup.text)
-        
+
+        # Buscar todos los elementos 'a' en el HTML
+        links = soup.find_all('a')    
+        scrapingLinks(url, links)
+
+
         for word in words:
             data += word + "\n"
         
         domain = obtainDomain(url)
         file_path = writeTxt(domain,data)
         
+        
+        
+
         return ({'status': "ok" , 'file_path': file_path })
     except: 
         print("error...")
