@@ -45,8 +45,12 @@ INSERT INTO `documentos` (`id`, `link`, `hora_desc`, `path`, `ultima_desc`, `id_
 (6, 'https://www.youtube.com/', '17:23:00', '/Users/basti/Desktop/Primer_Semestre_2023/distribuidos/docs_indice_invertido/code/scraping_dato/esclavo2/data/www.youtube.com_24.txt', '08:12:24', 2),
 (7, 'https://www.pcfactory.cl/producto/43968-gear-desktop-intel-pentium-gold-g6405-4gb-1tb', '11:00:00', '/Users/basti/Desktop/Primer_Semestre_2023/distribuidos/docs_indice_invertido/code/scraping_dato/esclavo0/data/www.pcfactory.cl_85.txt', '08:12:26', 0);
 
+-- INSERT INTO `documentos` (`id`, `link`, `hora_desc`, `path`, `ultima_desc`, `id_esclavo`) VALUES
+-- (1, 'https://www.pcfactory.cl/', '16:30:00', '/home/alex/Desktop/info288/proyecto/docs_indice_invertido/Maquina_Virtual_5.0/Descarga_Tramo_0/data/www.pcfactory.cl_25.txt', '08:12:23', 0),
+-- (2, 'https://www.falabella.com/', '17:00:00', '/home/alex/Desktop/info288/proyecto/docs_indice_invertido/Maquina_virtual_5.1/Descarga_tramo_1/data/www.falabella.com_26.txt', '08:12:23', 1);
 
 
+-- /home/alex/Desktop/info288/proyecto/docs_indice_invertido/Maquina_Virtual_5.0/Descarga_Tramo_0/data
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
