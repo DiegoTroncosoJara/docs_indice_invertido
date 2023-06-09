@@ -61,7 +61,7 @@ function App() {
         <button
           type="submit"
           onClick={handleSubmit}
-          className="px-4 py-2 font-bold text-black bg-white rounded-full hover:bg-slate-400"
+          className="px-4 py-2 font-bold text-black transition duration-300 bg-white rounded-full hover:bg-slate-400"
         >
           Buscar
         </button>
@@ -73,7 +73,7 @@ function App() {
         <button
           data-modal-target="popup-modal"
           data-modal-toggle="popup-modal"
-          className="px-2 py-1 ml-2 bg-white rounded-2xl hover:bg-slate-400"
+          className="px-2 py-1 ml-2 transition duration-300 ease-in-out delay-150 bg-white rounded-2xl hover:-translate-y-1 hover:scale-110 hover:bg-slate-400 "
           type="button"
           onClick={handleModalOpen}
         >
