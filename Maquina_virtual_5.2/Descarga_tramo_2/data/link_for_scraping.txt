@@ -1,0 +1,7 @@
+https://phuijse.github.io/MachineLearningBook/contents/supervised_learning/features.html#seleccion-de-caracteristicas
+https://phuijse.github.io/MachineLearningBook/contents/supervised_learning/features.html#escalamiento-y-normalizacion-de-caracteristicas
+https://phuijse.github.io/MachineLearningBook/contents/reinforcement_learning/policygrad.html
+https://github.com/customer-stories?type=enterprise
+https://github.com/features/actions
+https://docs.github.com/enterprise-cloud@latest/organizations/managing-organization-settings/verifying-or-approving-a-domain-for-your-organization
+https://desarrolloweb.com/contacto

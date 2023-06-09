@@ -3,5 +3,5 @@ elasticsearch
 uvicorn 
 mysql.connector
 python-dotenv
-
+APScheduler
 
