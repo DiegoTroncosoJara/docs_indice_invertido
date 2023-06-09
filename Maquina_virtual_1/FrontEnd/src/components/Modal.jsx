@@ -57,6 +57,7 @@ export function Modal({ isOpen, onClose }) {
                 type="text"
                 id="inputUrl"
                 ref={inputRef}
+                placeholder="www.google.com, www.twitch.tv, www.lun.com, etc..."
                 className="w-full px-4 py-2 leading-tight text-gray-700 bg-gray-200 border-2 border-gray-200 rounded appearance-none focus:outline-none focus:bg-white focus:border-blue-800"
               />
               <div className="py-4">
