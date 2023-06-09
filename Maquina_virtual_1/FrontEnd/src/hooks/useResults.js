@@ -1,7 +1,7 @@
 
 const getSearchResponse= async (query) => {
   const data = await fetch(
-    `http://0.0.0.0:8000/api/elasticsearch/search?q=${query}`
+    `http://localhost:8000/api/elasticsearch/search?q=${query}`
   )
     .then((response) => response.json())
     .then((data) => {
@@ -22,7 +22,7 @@ const getSearchResponse= async (query) => {
 };
 
 const getAllResults= async () => {
-  const data = await fetch(`http://0.0.0.0:8000/api/elasticsearch/search`)
+  const data = await fetch(`http://localhost:8000/api/elasticsearch/search`)
     .then((response) => response.json())
     .then((data) => {
       // Manipular los datos de respuesta
