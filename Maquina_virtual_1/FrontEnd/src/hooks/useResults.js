@@ -87,6 +87,7 @@ export async function useResults(query) {
       results = await getSearchResponse(arr_words);
     }
   }
+  console.log("results: ", results);
   const mappedResults = results?.map((res) => ({
     id: res.link,
     title: res.maintitle,

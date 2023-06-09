@@ -53,7 +53,7 @@ function App() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[conic-gradient(at_right,_var(--tw-gradient-stops))] from-indigo-200 via-slate-600 to-indigo-200">
+    <div className="w-full min-h-screen bg-gradient-to-b from-gray-900 to-gray-600 ">
       <h3 className="items-center justify-center pt-10 font-bold text-center font-patrick text-8xl text-zinc-50">
         Buscador de palabras
       </h3>
