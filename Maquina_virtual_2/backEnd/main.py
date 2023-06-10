@@ -77,6 +77,44 @@ es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 DB_NAME = 'db_scrapper'
 
 
+# ----- Path del log ----- #
+log_path = os.getenv("LOG_PATH")
+
+
+# =================================================================================================================== #
+# ========================================== LOGICA PARA EL PATH ==================================================== #
+# =================================================================================================================== #
+
+# Crear un objeto de log
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
+
+# Crear un manejador para escribir en el archivo de log
+log_file = log_path
+file_handler = handlers.RotatingFileHandler(log_file, maxBytes=1024, backupCount=3)
+file_handler.setLevel(logging.DEBUG)
+
+# Formateador para el log
+formatter = logging.Formatter('%(message)s')
+file_handler.setFormatter(formatter)
+
+# Agregar el manejador al objeto de log
+logger.addHandler(file_handler)
+
+# ----- Funcion para crear logs ----- #
+
+def log(text):
+    current_time = int(time.time())
+    """ 
+    Registrar un mensaje con el tiempo UNIX
+    El formato es: TiempoEnUnix;Referencia_log
+    EJ: 1686363931;ObtainDomainPath
+    """
+    logger.debug(f'{current_time};{text}')
+
+
+
+
 
 ##inicializa un diccionario  con los esclavos disponibles. 
 def GetUrlSlaves(): 
@@ -88,7 +126,9 @@ def GetUrlSlaves():
             
 
 
-
+def job():
+    algorithmInsertLinkScraping()
+    
 
 
 ## retorna alatoriamente un esclavo para ir a buscar un link para hacer un scraping
