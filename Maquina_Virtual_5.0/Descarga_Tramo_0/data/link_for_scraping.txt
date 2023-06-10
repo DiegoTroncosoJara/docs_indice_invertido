@@ -1,6 +1,10 @@
-https://www.pcfactory.cl/cpu-amd-str4?categoria=906&papa=272
-https://www.pcfactory.cl/brazalete-deportivo?categoria=688&papa=417
-https://phuijse.github.io/MachineLearningBook/contents/reinforcement_learning/dqn1.html
-https://phuijse.github.io/MachineLearningBook/contents/neural_networks/cnn.html
-https://www.pcfactory.cl/cartuchos-de-tinta-y-botellas-para-impresoras?categoria=12&papa=826
-https://phuijse.github.io/MachineLearningBook/_sources/contents/neural_networks/pytorch2.ipynb
+https://www.pcfactory.cl/placas-madres-intel-s1151?categoria=722&papa=292
+https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/changing-the-visibility-of-your-organizations-dependency-insights#main-content
+https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/managing-base-permissions-for-projects
+https://docs.github.com/en/enterprise-cloud@latest/organizations
+https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/managing-the-publication-of-github-pages-sites-for-your-organization
+https://docs.github.com/en/enterprise-cloud@latest/organizations
+https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/managing-the-forking-policy-for-your-organization
+https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/managing-updates-from-accounts-your-organization-sponsors
+https://docs.github.com/en/enterprise-cloud@latest/organizations
+https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/setting-team-creation-permissions-in-your-organization

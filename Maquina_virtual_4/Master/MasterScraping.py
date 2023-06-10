@@ -315,7 +315,7 @@ if __name__ == '__main__':
         ## son los datos que estan en la base de datos 
         ROWS = queryDB(config)
         
-        if(0):
+        if(1):
 
             
             # inicia el programa

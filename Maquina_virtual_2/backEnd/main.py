@@ -83,14 +83,14 @@ def GetUrlSlaves():
 ####--------------------------------------------------------------------------------####
 
 def job():
-    ##algorithmInsertLinkScraping()
-    print("")
+    algorithmInsertLinkScraping()
+    
 
 ## retorna alatoriamente un esclavo para ir a buscar un link para hacer un scraping
 def RandomSlave():
     num = random.randint(0,len(SLAVES)-1)
-    return "http://127.0.0.1:4001/getlink"
-    #return SLAVES[str(num)] + "getlink" 
+    ##return "http://127.0.0.1:4001/getlink"
+    return SLAVES[str(num)] + "getlink" 
 
 
 
