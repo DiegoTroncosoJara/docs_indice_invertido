@@ -36,8 +36,8 @@ SLAVES_TOTAL = []
 ##realiza una llamada para avisar al back-end que se insercto una nueva url para que pueda guardarla en el indixe invertido
 def newIndexing(path): 
     try: 
-        data = {'url_scraping': path  }
-        response = requests.post('{}/api/elasticsearch/linkPath_scrapper'.format(os.getenv("URL_BACK_END")), json=data)
+        data = {'link_path_scrapper': path  }
+        response = requests.post('{}/api/elasticsearch/link_path_scrapper'.format(os.getenv("URL_BACK_END")), json=data)
         result = response.json()
         if(result['success'] == True):
             print("se realizo la indexion correctamente....")
@@ -123,7 +123,12 @@ def sendRequest(url, url_data):
     if response.status_code == 200:
         print('La solicitud fue exitosa.')
         result = response.json()
-        return result["file_path"]
+        if(result["status"] == "ok"):
+            result = result["file_path"]
+            return result
+        else:
+            return "error.." 
+        
 
     else:
         print('La solicitud falló con el código de estado:', response.status_code)
@@ -150,14 +155,25 @@ def sendLoadBalancedRequest(url_data):
 def checkNewUrls(rows_aux):
     global ROWS
     if(len(ROWS) == len(rows_aux)):
+        print("son iguales")
         pass   
     else: 
-        filtered = [tuple for tuple in rows_aux if any(x is None for x in tuple)]
-        for row in filtered:
-            min = sendLoadBalancedRequest(row[1])
-            path = insertInDB(row[1],min)
-            newIndexing(path)
-        ROWS = queryDB(config)
+        
+        for row in rows_aux:
+            min, path_data = sendLoadBalancedRequest(row[1])
+
+            if(path_data!="error.."):
+
+                ## se incerta en la base de datos
+                insertInDB(row[1],min, path_data)
+                ## llamar a back/ para realizar la insercion  altro..
+                newIndexing(path_data)
+            else: 
+                print("mierda un error.. ")
+                print(row[0])
+                insertDataDescargaEstado2(int(row[0]), "si", row[1], "se produjo un error al realizar el scraping", config )
+                deleteRowById(row[0],config)
+        ##ROWS = queryDB(path_data)
         
 ## funcion que validad si alguna de las url de la base de datos le toca hacer scraping         
 def checkEveryHour():
@@ -178,15 +194,34 @@ def checkEveryHour():
 
 ##funcion que consulta se agrego  una nueva url para realizar el scraping    
 def daemonProcess():
-        rows_aux = queryDB(config)
+        #rows_aux = queryDB(config)
         print("realizando consulta demonio")
-        ##verifica si hay url con cambos vacios
-        checkNewUrls(rows_aux)
-        
-### crae los datos de la base de datos
-def queryDB(config):
-    conn = mysql.connector.connect(**config)
 
+        conn = mysql.connector.connect(**config)
+
+        # Crear un cursor para ejecutar consultas SQL
+        cursor = conn.cursor()
+
+        # Ejecutar una consulta SQL
+        query_select = "SELECT * FROM documentos WHERE path IS NULL"
+        cursor.execute(query_select)
+
+        rows = cursor.fetchall()
+        if len(rows) == 0: 
+            print("no hay ningun nuevo url para hacer scraping... ")
+
+        else: 
+            checkNewUrls(rows)    
+
+        cursor.close()
+        conn.close()
+
+
+
+### trae los datos de la base de datos
+def queryDB(config):
+    
+    conn = mysql.connector.connect(**config)
     # Crear un cursor para ejecutar consultas SQL
     cursor = conn.cursor()
 
@@ -228,10 +263,39 @@ def insertInDB(url,id_esclavo, path_data):
     conn.close()
     return absolute_path
 
+
+def deleteRowById(row_id, config):
+    conn = mysql.connector.connect(**config)
+    cursor = conn.cursor()
+
+    query_delete = "DELETE FROM documentos WHERE id = %s"
+    cursor.execute(query_delete, (row_id,))
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+
+def insertDataDescargaEstado2(id, error, url, comentario, config):
+    conn = mysql.connector.connect(**config)
+    cursor = conn.cursor()
+
+    query_insert = "INSERT INTO descargaEstado2 (id, error, url, comentario) VALUES (%s, %s, %s, %s)"
+    data = (id, error, url, comentario)
+    cursor.execute(query_insert, data)
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+
+
+
 ##porgrama que inicializa el programa cada vez que se ejecuta 
 def startProgram():
-    ##verifica que los esclavos esten disponibles y los agrega a una lista -> SLAVES
-    initSlaves()
+  
     #Agregue aquí el código para realizar la consulta
     for row in ROWS:
         print(row[1])
@@ -246,29 +310,40 @@ def startProgram():
 
 if __name__ == '__main__':
 
-    if(1):
-        ## son los datos que estna en la base de datos 
+        ##verifica que los esclavos esten disponibles y los agrega a una lista -> SLAVES
+        initSlaves()
+        ## son los datos que estan en la base de datos 
         ROWS = queryDB(config)
-        # inicia el programa
-        startProgram()
         
-        #verifica cada 1 minitos si los esclavos estan disponibles
-        schedule.every(1).minutes.do(timerSlaveStatus)
-        #verifica cada 30 min si se agrego una nueva url a la base de datos
-        schedule.every(30).minutes.do(daemonProcess)
-        ##verifica cada 1 hora si a alguna url se toca hacer scraping
-        schedule.every().hour.at(":00").do(checkEveryHour)
+        if(1):
 
-        # schedule.every().day.at("15:56").do(startProgram)
-        # schedule.every().day.at("15:56").do(startProgram)
+            
+            # inicia el programa
+            #startProgram()
+            
 
-        
-        ## ol programa queda corriendo 
-        while True:
-            schedule.run_pending()
-            time.sleep(1)
 
-    
+
+            #verifica cada 1 minitos si los esclavos estan disponibles
+            schedule.every(1).minutes.do(timerSlaveStatus)
+            #verifica cada 30 min si se agrego una nueva url a la base de datos
+            schedule.every(1).minutes.do(daemonProcess)
+            ##verifica cada 1 hora si a alguna url se toca hacer scraping
+            #schedule.every().hour.at(":00").do(checkEveryHour)
+
+            # schedule.every().day.at("15:56").do(startProgram)
+            # schedule.every().day.at("15:56").do(startProgram)
+
+            
+            ## ol programa queda corriendo 
+            while True:
+                schedule.run_pending()
+                time.sleep(1)
+
+        else:
+            daemonProcess()
+            ##newIndexing("/Users/basti/Desktop/sis_dis/docs_indice_invertido/Maquina_Virtual_5.0/Descarga_Tramo_0/data/phuijse.github.io_85.txt")
+
 
 
     ###########################################################################

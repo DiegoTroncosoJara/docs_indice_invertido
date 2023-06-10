@@ -20,7 +20,8 @@ from logging import handlers
 import time
 
 
-
+import random 
+from apscheduler.schedulers.background import BackgroundScheduler
 ## conexión DB (mariadb-mysql)
 import mysql.connector
 from urllib.parse import urlparse
@@ -38,7 +39,8 @@ load_dotenv()
 
 port = int(os.getenv("PORT"))
 origins = [
-    os.getenv("URL_FRONT_END")
+    os.getenv("URL_FRONT_END"),
+    "localhost"
 ]
 
 
@@ -73,18 +75,6 @@ app.add_middleware(
 # ----- Conexión: ELasticsearch ----- #
 es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
 DB_NAME = 'db_scrapper'
-
-
-
-
-def GetUrlSlaves(): 
-    global SLAVES
-    slaves_quantity = int((os.getenv("ESCLAVOS_quantity")))
-    for i in range(slaves_quantity):
-        aux = os.getenv("URL_ESCLAVO_{}".format(str(i)))
-        SLAVES[str(i)] = aux
-            
-
 
 
 # ----- Path del log ----- #
@@ -126,12 +116,80 @@ def log(text):
 
 
 
+##inicializa un diccionario  con los esclavos disponibles. 
+def GetUrlSlaves(): 
+    global SLAVES
+    slaves_quantity = int((os.getenv("ESCLAVOS_quantity")))
+    for i in range(slaves_quantity):
+        aux = os.getenv("URL_ESCLAVO_{}".format(str(i)))
+        SLAVES[str(i)] = aux
+            
 
+
+def job():
+    algorithmInsertLinkScraping()
     
 
 
+## retorna alatoriamente un esclavo para ir a buscar un link para hacer un scraping
+def RandomSlave():
+    num = random.randint(0,len(SLAVES)-1)
+    ##return "http://127.0.0.1:4001/getlink"
+    return SLAVES[str(num)] + "getlink" 
 
 
+
+# verifica si el link ya esta eb la base de datos 
+
+def CheckLinkDb(link): 
+    query_select = f"SELECT * FROM documentos WHERE link = '{link}'"
+    cursor.execute(query_select)
+    resultado = cursor.fetchone()
+
+    if resultado is not None:
+        print("El enlace está en la base de datos.")
+        return True
+    else:
+        return False
+
+
+##agrega un link a la base de datos con su hora para realizar scraping. 
+def enterDbLink(link):
+    hora_desc = datetime.now().strftime("%H:%M:%S")
+    query_db = "INSERT INTO documentos (link, hoara_desc) VALUES (%s, %s)"
+    values_db = (link, hora_desc)
+    cursor.execute(query_db, values_db)
+    conexion.commit()
+
+### trae un link de los distintos scrapeer 
+def goFindLink():
+    url = RandomSlave()
+    response = requests.get(url);
+    if response.status_code == 200:
+        result = response.json()
+        if (result["status"] == "ok"): 
+            result = result["link"]
+            return result , True
+
+        else: 
+            print("no quedan mas link.. ")
+            return "", False 
+    else: 
+        print("error de conexion... ")
+
+# funcion que inicia  el proceso de traer un link 
+def algorithmInsertLinkScraping():
+    print("hola... ")
+    link , conditional = goFindLink()
+    if(CheckLinkDb(link)!= True and conditional): 
+        enterDbLink(link)
+    elif((CheckLinkDb(link)== False )and (conditional != False)):
+        algorithmInsertLinkScraping()
+    else:
+        print("hola viendo que cae en el else... .")
+       ## algorithmInsertLinkScraping()
+
+####--------------------------------------------------------------------------------####
 
 
 # =================================================================================================================== #
@@ -155,7 +213,8 @@ def obtainDomainPath(path):
         domain_name = domain_name[:domain_name.index(".")]
     ##print(domain_name)
     #return domain_name
-    return path
+    
+    return domain_name
 
 # /api/elasticsearch/refresh
 def dbCall():
@@ -193,9 +252,9 @@ def initializeGlobalData():
         list_path.append(i[1])
         list_id.append(i[2])
 
+## obtienen el contenido del url, mediante una petición al  esclavo designado. 
 def bringDataFile(file_path, id_slave):
     
-        print(file_path)
         url = "{}leer".format(SLAVES[str(id_slave)])
         response = requests.post(url, json={
             "file_path" : file_path
@@ -248,6 +307,10 @@ def compressFile(file_path):
 
 
 
+
+# =================================================================================================================== #
+# ============================================== Funciones para elasticsearch =======================================#
+# =================================================================================================================== #
 
 # /api/elasticsearch/create
 def createIndex():
@@ -314,7 +377,7 @@ def refreshIndexes():
             try:
                 es.get(index=DB_NAME, id=file_name)
                 # Si el indexamiento es exitoso Comprimir el contenido del archivo
-                compressFile(list_path[i])
+                ##compressFile(list_path[i])
 
                 response['already_exists'].append({'file_name':file_name})
 
@@ -485,7 +548,7 @@ async def addLinkPath(link_path_scrapper: dict):
     #Agregar en el log la ruta
     log("agrega_links_por_path") 
 
-
+    print(link_path_scrapper)
     if not link_path_scrapper:
         return  { 'success': False, 'message': 'Something went wrong.'}
 
@@ -493,38 +556,40 @@ async def addLinkPath(link_path_scrapper: dict):
     for clave in link_path_scrapper.keys():
         if (clave != "link_path_scrapper"):
             return  { 'success': False, 'message': 'Something went wrong.'}
+    
 
-
-    # LINK PATH : /home/alex/Desktop/info288/proyecto/docs_indice_invertido/scraping/esclavo2/data/www.youtube.com_24.txt
     try:
         # Nos conectamos a Mariadb/Mysql 
-        link_content = link_path_scrapper['link_path_scrapper']
+        path = link_path_scrapper['link_path_scrapper']
         cursor_1 = conexion.cursor()
-        cursor_1.execute(f"SELECT link FROM documentos WHERE path = '{link_content}'")
+        cursor_1.execute(f"SELECT link, id_esclavo  FROM documentos WHERE path = '{path}'")
         url = cursor_1.fetchone()
-
+        
+        print(path)
         # Se verifica si el url es None o no
         print("url: ", url)
         if url is None:
             print("El elemento no existe en la base de datos")
             return {"success": False, "message": "El elemento no existe en la base de datos"}
         cursor_1.close()
-
-        # Leemos el archivo
-        file_name = link_content.split("/")[-1].split(".")[1]
-
+        
+        file_name = obtainDomainPath(url[0])
+        print(file_name)
+        
+        file_content = bringDataFile(path, url[1])
+      
     except Exception as e:
         print("Error: ", e)
         return  { "success": False, "message": "Something went wrong."}
 
     # Add : maintitle, url, content
     try:
-        with open(link_content, 'r', encoding='ISO-8859-1')  as f:
-            file_content = f.read()
+        
+            
             es.index(index=DB_NAME, id=file_name, document={
                 'title': file_name,
                 'content': file_content,
-                'url' : url,
+                'url' : url[0],
             })
             return { "success": True, "message": "Se ha indexado el archivo"}
 
@@ -542,18 +607,13 @@ async def getLink(link: dict):
     if not link:
         raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 
-    
-
-    #####
-    hora_desc = "17:00:00"
     link_final = link["link"]
-    print("link: ",link_final)
-    query_db = "INSERT INTO documentos (link, hora_desc) VALUES (%s, %s)"
-    values_db = (link_final, hora_desc)
-    cursor.execute(query_db, values_db)
-    conexion.commit()
-
-    return JSONResponse(content={"message": link})
+    
+    if(CheckLinkDb(link_final)!=True):
+        enterDbLink(link_final)
+        return JSONResponse(content={"status": "True", "message": "se ingreso correctamente en la base de datos." })
+    else:
+        return JSONResponse(content={"status" : "False" ,"message": "el link ya esta en la base de datos.."})
 
 
 
@@ -573,15 +633,27 @@ async def getLink(link: dict):
  
 # ==
 
+
+    ##print("hola probando el minuto")
+
+
 if __name__ == "__main__":
-   
-#    initializeGlobalData()
-   GetUrlSlaves() 
-#    print(SLAVES)
-#    for i in range(len(list_path)):
-       
-#        contenido = bringDataFile(list_path[i], list_id[i])
-#        print("----------------------------------------")
-#        print("a")
-   
-uvicorn.run(app, host="0.0.0.0", port=port)
+    GetUrlSlaves()
+    initializeGlobalData()
+
+    # Crear un objeto scheduler
+    scheduler = BackgroundScheduler()
+
+    # Agregar la tarea al scheduler
+    scheduler.add_job(job, 'interval', minutes=1)
+
+    # Iniciar el scheduler
+    scheduler.start()
+
+    try:
+        # Mantener el backend en ejecución
+        uvicorn.run(app, host="0.0.0.0", port=port)
+    except (KeyboardInterrupt, SystemExit):
+        # Detener el scheduler cuando se recibe una señal de interrupción o salida del sistema
+        scheduler.shutdown()
+
