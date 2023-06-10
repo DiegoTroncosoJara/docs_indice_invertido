@@ -13,6 +13,14 @@ import os
 import uvicorn
 import zipfile
 
+
+#Logs
+import logging
+from logging import handlers
+import time
+
+
+
 ## conexión DB (mariadb-mysql)
 import mysql.connector
 from urllib.parse import urlparse
@@ -76,6 +84,49 @@ def GetUrlSlaves():
         aux = os.getenv("URL_ESCLAVO_{}".format(str(i)))
         SLAVES[str(i)] = aux
             
+
+
+
+# ----- Path del log ----- #
+log_path = os.getenv("LOG_PATH")
+
+
+# =================================================================================================================== #
+# ========================================== LOGICA PARA EL PATH ==================================================== #
+# =================================================================================================================== #
+
+# Crear un objeto de log
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
+
+# Crear un manejador para escribir en el archivo de log
+log_file = log_path
+file_handler = handlers.RotatingFileHandler(log_file, maxBytes=1024, backupCount=3)
+file_handler.setLevel(logging.DEBUG)
+
+# Formateador para el log
+formatter = logging.Formatter('%(message)s')
+file_handler.setFormatter(formatter)
+
+# Agregar el manejador al objeto de log
+logger.addHandler(file_handler)
+
+# ----- Funcion para crear logs ----- #
+
+def log(text):
+    current_time = int(time.time())
+    """ 
+    Registrar un mensaje con el tiempo UNIX
+    El formato es: TiempoEnUnix;Referencia_log
+    EJ: 1686363931;ObtainDomainPath
+    """
+    logger.debug(f'{current_time};{text}')
+
+
+
+
+
+
     
 
 
@@ -93,6 +144,7 @@ def obtainDomainPath(path):
     Obtiene el dominio de un path
     """
     # print("path = ",path)
+
     parsed_url = urlparse(path)
     domain_name = parsed_url.netloc
     
@@ -110,6 +162,7 @@ def dbCall():
     """
     Carga datos con link y path
     """
+
     global data
     cursor = conexion.cursor()
     query = "SELECT  link, path , id_esclavo FROM  documentos"
@@ -202,6 +255,7 @@ def createIndex():
     Crea el índice "DB_NAME"
     Si ya está creado, devuelve los documentos que hay
     """
+
     try:
         es.indices.create( # ···> Solo debe ejecutarse una vez
             index=DB_NAME, # ···> DB_NAME
@@ -291,11 +345,16 @@ def refreshIndexes():
 
 # /api/elasticsearch/create:
 @app.get("/api/elasticsearch/create")
-def createRoot():  
+def createRoot():
     """
     En Elasticsearch se crean los índices (DB_NAME = 'db_scrapper')
     Si ya existe el índice, entonces retorna los documentos actuales
     """
+
+    #Agregar en el log la ruta
+    log("crea_indices")  
+
+
     return createIndex()
 
 # /api/elasticsearch/refresh:
@@ -304,6 +363,9 @@ def refreshRoot():
     """
     Refresca los documentos, revisando si hay más elementos por agregar al Elasticsearch
     """
+    #Agregar en el log la ruta
+    log("refresca_documentos") 
+
     return refreshIndexes()
 
 # /api/delete:
@@ -313,6 +375,9 @@ def delete():
     Función de testeo para eliminar completamente DB_NAME
     Está comentado, y que se utilizó para pruebas, pero dejar una ruta así podría ser peligroso. Ya que cualquier persona podría eliminar todo el índice
     """
+
+     #Agregar en el log la ruta
+    log("elimina_DB_NAME") 
 
     # Crea una instancia de Elasticsearch
     es = Elasticsearch(os.getenv("URL_ELASTICSEARCH"))
@@ -336,6 +401,9 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
         q: str | None
         return: documentos
     """
+
+    #Agregar en el log la ruta
+    log("busqueda_en_documentos") 
 
     # --- Si no hay Query ---
     # /api/elasticsearch/search
@@ -414,6 +482,10 @@ async def addLinkPath(link_path_scrapper: dict):
     }
     """
 
+    #Agregar en el log la ruta
+    log("agrega_links_por_path") 
+
+
     if not link_path_scrapper:
         return  { 'success': False, 'message': 'Something went wrong.'}
 
@@ -464,6 +536,9 @@ async def addLinkPath(link_path_scrapper: dict):
 @app.post("/api/links")
 async def getLink(link: dict):
     
+    #Agregar en el log la ruta
+    log("consigue_links") 
+
     if not link:
         raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 

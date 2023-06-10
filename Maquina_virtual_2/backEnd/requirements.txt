@@ -3,5 +3,6 @@ elasticsearch
 uvicorn 
 mysql.connector
 python-dotenv
+logging
 
 
