@@ -161,8 +161,7 @@ def  verifylinkparentDb(url):
     print(url)
     check, id = CheckLinkDb(url)
     print(check)
-    ##ver su url rai
-    # z 
+    ##ver su url raiz 
     if(check): 
         return id 
     else: 
@@ -180,18 +179,19 @@ def goFindLink():
 
         else: 
             print("no quedan mas link.. ")
-            return "", False 
+            return None, False 
     else: 
         print("error de conexion... ")
 
 # funcion que inicia  el proceso de traer un link 
 def algorithmInsertLinkScraping():
     link , conditional = goFindLink()
-    if(CheckLinkDb(link)!= True and conditional): 
+    check, val = CheckLinkDb(link)
+    if(check!= True and conditional): 
 
         id_link_parent = verifylinkparentDb(link)
         enterDbLink(link,id_link_parent)
-    elif((CheckLinkDb(link)== False )and (conditional != False)):
+    elif((check== False )and (conditional != False)):
         algorithmInsertLinkScraping()
     else:
         print("hola viendo que cae en el else... .")
@@ -627,24 +627,39 @@ async def getLink(link: dict):
 
 
 if __name__ == "__main__":
+
+
     GetUrlSlaves()
     initializeGlobalData()
 
-    # Crear un objeto scheduler
-    scheduler = BackgroundScheduler()
+    #algorithmInsertLinkScraping()
 
-    # Agregar la tarea al scheduler
-    scheduler.add_job(algorithmInsertLinkScraping, 'interval', minutes=1)
+    #obtener_dominio_raiz("https://www.youtube.com/new")
 
-    # Iniciar el scheduler
-    scheduler.start()
 
-    try:
-        # Mantener el backend en ejecución
-        uvicorn.run(app, host=os.getenv("HOST") , port=port)
-    except (KeyboardInterrupt, SystemExit):
-        # Detener el scheduler cuando se recibe una señal de interrupción o salida del sistema
-        scheduler.shutdown()
+    # validador , id = CheckLinkDb("http://www.circulodeespecialistas.cl/puntos-cmr-para-socios")
+    # ##print(validador)
+    # print(id)
 
-    
+    # valor = verifylinkparentDb("http://www.circulodeespecialistas.cl/puntos-cmr-para-socios")
+    # print(valor)
+
+    if(1): 
+        #Crear un objeto scheduler
+        scheduler = BackgroundScheduler()
+
+        # Agregar la tarea al scheduler
+        scheduler.add_job(algorithmInsertLinkScraping, 'interval', minutes=1)
+
+        # Iniciar el scheduler
+        scheduler.start()
+
+        try:
+            # Mantener el backend en ejecución
+            uvicorn.run(app, host=os.getenv("HOST") , port=port)
+        except (KeyboardInterrupt, SystemExit):
+            # Detener el scheduler cuando se recibe una señal de interrupción o salida del sistema
+            scheduler.shutdown()
+
+        
 
