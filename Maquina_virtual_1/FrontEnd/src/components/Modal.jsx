@@ -1,6 +1,6 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { useRef } from 'react';
-
+import Swal from 'sweetalert2';
 
 async function sendNewUrl (url){
   const newUrl = `https://${url}/`
@@ -13,7 +13,11 @@ async function sendNewUrl (url){
 
   try {
     const response = await fetch(`http://localhost:8000/api/links`, requestOptions);
-    console.log("response: ", response);
+    const data = await response.json();
+    Swal.fire({
+      icon: data.status,
+      title: data.message
+    })
   } catch (error) {
     console.log(error);
   }
@@ -29,7 +33,6 @@ export function Modal({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const newQuery = inputRef.current.value;
-    console.log("newQuery:", newQuery);
     sendNewUrl(newQuery);
     onClose();
   }
