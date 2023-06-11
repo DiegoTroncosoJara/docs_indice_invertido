@@ -597,8 +597,8 @@ async def getLink(link: dict):
         raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 
     link_final = link["link"]
-    
-    if(CheckLinkDb(link_final)!=True):
+    check, link = CheckLinkDb(link_final)
+    if(check!=True):
         enterDbLink(link_final)
         return JSONResponse(content={"status": "success", "message": "El link se registró correctamente." })
     else:
