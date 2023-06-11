@@ -18,8 +18,6 @@ async function sendNewUrl (url){
       icon: data.status,
       title: data.message
     })
-    console.log("response: ", data);
-    //console.log("otro: ", respon);
   } catch (error) {
     console.log(error);
   }
@@ -35,7 +33,6 @@ export function Modal({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const newQuery = inputRef.current.value;
-    console.log("newQuery:", newQuery);
     sendNewUrl(newQuery);
     onClose();
   }
