@@ -611,9 +611,9 @@ async def getLink(link: dict):
     
     if(CheckLinkDb(link_final)!=True):
         enterDbLink(link_final)
-        return JSONResponse(content={"status": "True", "message": "se ingreso correctamente en la base de datos." })
+        return JSONResponse(content={"status": "success", "message": "El link se registró correctamente." })
     else:
-        return JSONResponse(content={"status" : "False" ,"message": "el link ya esta en la base de datos.."})
+        return JSONResponse(content={"status" : "error" ,"message": "El link ya está registrado."})
 
 
 
