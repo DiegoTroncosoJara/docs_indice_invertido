@@ -29,10 +29,10 @@ from urllib.parse import urlparse
 ## para variable de enterno
 from dotenv import load_dotenv
 
-
+## funciones 
+from helpers.helper import obtener_dominio_raiz , obtainDomainPath
 #
 # ----- Cargar .env ----- #
-
 load_dotenv()
 
 # ----- Variables: Puerto y Origins (cors) ----- #
@@ -113,7 +113,7 @@ def log(text):
     logger.debug(f'{current_time};{text}')
 
 
-
+####  ------------------------------------------------------------------------------------
 
 
 ##inicializa un diccionario  con los esclavos disponibles. 
@@ -126,11 +126,6 @@ def GetUrlSlaves():
             
 
 
-def job():
-    algorithmInsertLinkScraping()
-    
-
-
 ## retorna alatoriamente un esclavo para ir a buscar un link para hacer un scraping
 def RandomSlave():
     num = random.randint(0,len(SLAVES)-1)
@@ -139,27 +134,39 @@ def RandomSlave():
 
 
 
-# verifica si el link ya esta eb la base de datos 
-
+# verifica si el link ya esta en la base de datos 
 def CheckLinkDb(link): 
     query_select = f"SELECT * FROM documentos WHERE link = '{link}'"
     cursor.execute(query_select)
     resultado = cursor.fetchone()
-
+    
     if resultado is not None:
         print("El enlace está en la base de datos.")
-        return True
+        return True, resultado[0]
     else:
-        return False
+        return False, None
 
 
 ##agrega un link a la base de datos con su hora para realizar scraping. 
-def enterDbLink(link):
+def enterDbLink(link, id_link_parent):
     hora_desc = datetime.now().strftime("%H:%M:%S")
-    query_db = "INSERT INTO documentos (link, hoara_desc) VALUES (%s, %s)"
-    values_db = (link, hora_desc)
+    query_db = "INSERT INTO documentos (link, hoara_desc, id_url_dependient) VALUES (%s, %s, %s)"
+    values_db = (link, hora_desc, id_link_parent)
     cursor.execute(query_db, values_db)
     conexion.commit()
+
+
+def  verifylinkparentDb(url):
+    url = obtener_dominio_raiz(url)
+    print(url)
+    check, id = CheckLinkDb(url)
+    print(check)
+    ##ver su url rai
+    # z 
+    if(check): 
+        return id 
+    else: 
+        return None 
 
 ### trae un link de los distintos scrapeer 
 def goFindLink():
@@ -179,10 +186,11 @@ def goFindLink():
 
 # funcion que inicia  el proceso de traer un link 
 def algorithmInsertLinkScraping():
-    print("hola... ")
     link , conditional = goFindLink()
     if(CheckLinkDb(link)!= True and conditional): 
-        enterDbLink(link)
+
+        id_link_parent = verifylinkparentDb(link)
+        enterDbLink(link,id_link_parent)
     elif((CheckLinkDb(link)== False )and (conditional != False)):
         algorithmInsertLinkScraping()
     else:
@@ -196,25 +204,7 @@ def algorithmInsertLinkScraping():
 # ===================================== FUNCIONES PARA RUTAS: FastAPI =============================================== #
 # =================================================================================================================== #
 
-# /api/elasticsearch/refresh
-def obtainDomainPath(path):
-    """
-    Obtiene el dominio de un path
-    """
-    # print("path = ",path)
 
-    parsed_url = urlparse(path)
-    domain_name = parsed_url.netloc
-    
-    if domain_name.startswith("www."):
-        domain_name = domain_name[4:]
-
-    if "." in domain_name:
-        domain_name = domain_name[:domain_name.index(".")]
-    ##print(domain_name)
-    #return domain_name
-    
-    return domain_name
 
 # /api/elasticsearch/refresh
 def dbCall():
@@ -304,7 +294,6 @@ def compressFile(file_path):
     except:
         print("Error al eliminar archivo original")
         pass
-
 
 
 
@@ -608,8 +597,8 @@ async def getLink(link: dict):
         raise HTTPException(status_code=400, detail="No se proporcionaron datos")
 
     link_final = link["link"]
-    
-    if(CheckLinkDb(link_final)!=True):
+    check, link = CheckLinkDb(link_final)
+    if(check!=True):
         enterDbLink(link_final)
         return JSONResponse(content={"status": "success", "message": "El link se registró correctamente." })
     else:
@@ -645,15 +634,17 @@ if __name__ == "__main__":
     scheduler = BackgroundScheduler()
 
     # Agregar la tarea al scheduler
-    scheduler.add_job(job, 'interval', minutes=1)
+    scheduler.add_job(algorithmInsertLinkScraping, 'interval', minutes=1)
 
     # Iniciar el scheduler
     scheduler.start()
 
     try:
         # Mantener el backend en ejecución
-        uvicorn.run(app, host="0.0.0.0", port=port)
+        uvicorn.run(app, host=os.getenv("HOST") , port=port)
     except (KeyboardInterrupt, SystemExit):
         # Detener el scheduler cuando se recibe una señal de interrupción o salida del sistema
         scheduler.shutdown()
+
+    
 
