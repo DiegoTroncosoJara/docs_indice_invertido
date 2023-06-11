@@ -3,7 +3,9 @@ from urllib.parse import urlparse
 
 def obtener_dominio_raiz(url):
     parsed_url = urlparse(url)
-    dominio_raiz = parsed_url.scheme + '://www.' + parsed_url.netloc
+    
+    dominio_raiz = parsed_url.scheme + "://" +  parsed_url.netloc + "/"
+    print(dominio_raiz)
     return dominio_raiz
 
 

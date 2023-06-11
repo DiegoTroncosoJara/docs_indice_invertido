@@ -319,7 +319,7 @@ if __name__ == '__main__':
 
             
             # inicia el programa
-            #startProgram()
+            startProgram()
             
 
 
