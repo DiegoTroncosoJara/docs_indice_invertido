@@ -278,11 +278,12 @@ def deleteRowById(row_id, config):
 
 
 def insertDataDescargaEstado2(id, error, url, comentario, config):
+    hora_desc = datetime.now().strftime("%H:%M:%S")
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
 
-    query_insert = "INSERT INTO descargaEstado2 (id, error, url, comentario) VALUES (%s, %s, %s, %s)"
-    data = (id, error, url, comentario)
+    query_insert = "INSERT INTO descargaEstado2 (id, error, url, comentario,hora_error) VALUES (%s, %s, %s, %s, %s)"
+    data = (id, error, url, comentario,hora_desc)
     cursor.execute(query_insert, data)
 
     conn.commit()

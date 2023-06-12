@@ -9,6 +9,15 @@ def obtener_dominio_raiz(url):
     return dominio_raiz
 
 
+def SeparaLink(url):
+    lista = url.split(",")
+
+    return lista
+    pass
+
+
+
+
 # /api/elasticsearch/refresh
 
 #entrega el nombre del dominio 

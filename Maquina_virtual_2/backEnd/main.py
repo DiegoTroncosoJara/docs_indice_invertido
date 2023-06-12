@@ -30,7 +30,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 ## funciones 
-from helpers.helper import obtener_dominio_raiz , obtainDomainPath
+from helpers.helper import obtener_dominio_raiz , obtainDomainPath, SeparaLink
 #
 # ----- Cargar .env ----- #
 load_dotenv()
@@ -129,7 +129,7 @@ def GetUrlSlaves():
 ## retorna alatoriamente un esclavo para ir a buscar un link para hacer un scraping
 def RandomSlave():
     num = random.randint(0,len(SLAVES)-1)
-    ##return "http://127.0.0.1:4001/getlink"
+    #return "http://127.0.0.1:4001/getlink"
     return SLAVES[str(num)] + "getlink" 
 
 
@@ -141,7 +141,6 @@ def CheckLinkDb(link):
     resultado = cursor.fetchone()
     
     if resultado is not None:
-        print("El enlace está en la base de datos.")
         return True, resultado[0]
     else:
         return False, None
@@ -157,15 +156,13 @@ def enterDbLink(link, id_link_parent):
 
 
 def  verifylinkparentDb(url):
-    url = obtener_dominio_raiz(url)
-    print(url)
     check, id = CheckLinkDb(url)
-    print(check)
     ##ver su url raiz 
     if(check): 
         return id 
     else: 
         return None 
+
 
 ### trae un link de los distintos scrapeer 
 def goFindLink():
@@ -175,27 +172,31 @@ def goFindLink():
         result = response.json()
         if (result["status"] == "ok"): 
             result = result["link"]
-            return result , True
+            result = SeparaLink(result)
 
+            return result , True
         else: 
-            print("no quedan mas link.. ")
-            return None, False 
+            return [], False 
     else: 
         print("error de conexion... ")
+        
 
 # funcion que inicia  el proceso de traer un link 
 def algorithmInsertLinkScraping():
     link , conditional = goFindLink()
-    check, val = CheckLinkDb(link)
-    if(check!= True and conditional): 
-
-        id_link_parent = verifylinkparentDb(link)
-        enterDbLink(link,id_link_parent)
-    elif((check== False )and (conditional != False)):
-        algorithmInsertLinkScraping()
+    
+    if(len(link)!=0):
+        check, id= CheckLinkDb(link[0])
+        if(check!= True and conditional): 
+            id_link_parent = verifylinkparentDb(link[1])
+            enterDbLink(link[0],id_link_parent)
+        elif((check== False )and (conditional != False)):
+            algorithmInsertLinkScraping()
+        else:
+            print("hola viendo que cae en el else... .")
+        ## algorithmInsertLinkScraping()
     else:
-        print("hola viendo que cae en el else... .")
-       ## algorithmInsertLinkScraping()
+        print("no quedan mas link.....")
 
 ####--------------------------------------------------------------------------------####
 
@@ -599,7 +600,7 @@ async def getLink(link: dict):
     link_final = link["link"]
     check, link = CheckLinkDb(link_final)
     if(check!=True):
-        enterDbLink(link_final)
+        enterDbLink(link_final,None)
         return JSONResponse(content={"status": "success", "message": "El link se registró correctamente." })
     else:
         return JSONResponse(content={"status" : "error" ,"message": "El link ya está registrado."})
@@ -632,7 +633,7 @@ if __name__ == "__main__":
     GetUrlSlaves()
     initializeGlobalData()
 
-    #algorithmInsertLinkScraping()
+    # algorithmInsertLinkScraping()
 
     #obtener_dominio_raiz("https://www.youtube.com/new")
 
@@ -660,6 +661,8 @@ if __name__ == "__main__":
         except (KeyboardInterrupt, SystemExit):
             # Detener el scheduler cuando se recibe una señal de interrupción o salida del sistema
             scheduler.shutdown()
+            scheduler.start()
+
 
         
 
