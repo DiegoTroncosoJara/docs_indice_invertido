@@ -7,6 +7,7 @@ import json
 import re
 import os
 from dotenv import load_dotenv
+import zipfile
 
 ##----------------------------------------------------------------#
 ##funcion que permite leer el archivo .env 
@@ -67,9 +68,49 @@ def scrapingLinks(url, links):
     writeLinkScarping(data)
     urls = []
 
+## Algoritmo que comprime un archivo y lo elimina
+def compressFile(file_path):
+    """
+    Comprime un archivo según su path
+    """
+    # ej: /some/path/to/www.file.txt
+    nombre_archivo = file_path.split("/")[-1] # www.file.txt
+    nombre_archivo = nombre_archivo.split(".")[:-1]
+    nombre_archivo = ".".join(nombre_archivo) # www.file
+    nombre_archivo_comprimido = "{}.zip".format(nombre_archivo) # file.zip
+    print(nombre_archivo_comprimido)
+
+    print('file_path = ', file_path)
+
+    # Comprimimos el archivo en zip y lo guardamos en el path del archivo
+
+    try:
+        # tomamos el file_path menos el archivo.txt
+        path = file_path.split("/")[:-1] # /some/path/to/www.file
+        path = "/".join(path) # /some/path/to
+        # agregamos el nombre del archivo comprimido
+        path = "{}/{}".format(path, nombre_archivo_comprimido) # /some/path/to/file.zip
+        print('path = ', path)
+        # Comprimimos el archivo
+        with zipfile.ZipFile(path, 'w') as zip:
+            zip.write(file_path, nombre_archivo_comprimido)
+        print("Archivo comprimido")
+    except:
+        print("Error al comprimir archivo")
+        pass
+
+
+    # Eliminar archivo original
+    try:
+        # os.remove(file_path)
+        print('removiendo archivo original')   
+    except:
+        print("Error al eliminar archivo original")
+        pass
 
 ##################################################################################################################################################
 ##################################################################################################################################################
+
 
 #permite devolver el contenido de los archivos txt
 @app.route('/leer', methods=['POST'])
@@ -82,6 +123,10 @@ def readFile():
     try: 
         with open(file_path, 'r') as file:
             content = file.read()
+
+        # Comprimir el archivo
+        compressFile(file_path)
+        print('contenido =...')
 
         # Devolver 
         return jsonify({'content': content})

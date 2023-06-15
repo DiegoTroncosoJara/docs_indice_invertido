@@ -139,6 +139,7 @@ def CheckLinkDb(link):
     query_select = f"SELECT * FROM documentos WHERE link = '{link}'"
     cursor.execute(query_select)
     resultado = cursor.fetchone()
+    conexion.commit()
     
     if resultado is not None:
         print("El enlace está en la base de datos.")
@@ -150,7 +151,7 @@ def CheckLinkDb(link):
 ##agrega un link a la base de datos con su hora para realizar scraping. 
 def enterDbLink(link, id_link_parent):
     hora_desc = datetime.now().strftime("%H:%M:%S")
-    query_db = "INSERT INTO documentos (link, hoara_desc, id_url_dependient) VALUES (%s, %s, %s)"
+    query_db = "INSERT INTO documentos (link, hora_desc, id_url_dependient) VALUES (%s, %s, %s)"
     values_db = (link, hora_desc, id_link_parent)
     cursor.execute(query_db, values_db)
     conexion.commit()
@@ -158,9 +159,9 @@ def enterDbLink(link, id_link_parent):
 
 def  verifylinkparentDb(url):
     url = obtener_dominio_raiz(url)
-    print(url)
+    print("verify parentDB, url: ", url)
     check, id = CheckLinkDb(url)
-    print(check)
+    print("verify parentDB, check:",check)
     ##ver su url raiz 
     if(check): 
         return id 
@@ -197,7 +198,7 @@ def algorithmInsertLinkScraping():
         print("hola viendo que cae en el else... .")
        ## algorithmInsertLinkScraping()
 
-####--------------------------------------------------------------------------------####
+####-------------------------------------------------------------------------------####
 
 
 # =================================================================================================================== #
@@ -217,6 +218,7 @@ def dbCall():
     query = "SELECT  link, path , id_esclavo FROM  documentos"
     cursor.execute(query)
     data = cursor.fetchall()
+
     ##data = [elemento for dupla in datos for elemento in dupla]
 
 # /api/elasticsearch/refresh
@@ -364,7 +366,8 @@ def refreshIndexes():
             file_name = list_names[i]
             url = data[i][0]
             try:
-                es.get(index=DB_NAME, id=file_name)
+                # 14-06-2023 id=url
+                es.get(index=DB_NAME, id=url)
                 # Si el indexamiento es exitoso Comprimir el contenido del archivo
                 ##compressFile(list_path[i])
 
@@ -372,8 +375,9 @@ def refreshIndexes():
 
 
             except:
+                # 14-06-2023 id=url
                 file_content = bringDataFile(list_path[i], list_id[i])
-                es.index(index=DB_NAME, id=file_name, document={
+                es.index(index=DB_NAME, id=url, document={
                         'title': file_name,
                         'content': file_content,
                         'url' : url,
@@ -455,7 +459,8 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
     """
 
     #Agregar en el log la ruta
-    log("busqueda_en_documentos") 
+    log("busqueda_en_documentos")
+    ssize = 30 
 
     # --- Si no hay Query ---
     # /api/elasticsearch/search
@@ -465,12 +470,13 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
             "match_all": {},
         }
        # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=q)
+        resp = es.search(index=DB_NAME, query=q, size=ssize)
         final_resp = []
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
             url = hit['_source']['url']
-            content = hit['_source']['content']
+            content = hit['_source']['content'] # le mandamos 500 caracteres
+            content = content[:500]
 
             # maintitle = title.split(".")[1]
             temp = { 'maintitle': title, 'link': url, 'content': content}
@@ -503,7 +509,7 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
         }
 
         # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=query, highlight=highlight)
+        resp = es.search(index=DB_NAME, query=query, highlight=highlight, size=ssize)
         final_resp = []
 
         # hits.hits <··· Respuestas encontradas en Elasticsearch
@@ -574,8 +580,8 @@ async def addLinkPath(link_path_scrapper: dict):
     # Add : maintitle, url, content
     try:
         
-            
-            es.index(index=DB_NAME, id=file_name, document={
+            # 14-06-2021
+            es.index(index=DB_NAME, id=url[0], document={
                 'title': file_name,
                 'content': file_content,
                 'url' : url[0],
