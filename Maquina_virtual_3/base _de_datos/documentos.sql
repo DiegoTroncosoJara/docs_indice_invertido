@@ -26,6 +26,32 @@ CREATE TABLE `descarga_estado` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+-- ESTO ES NUEVO 14-06-2023 AGREGA 'comentario'
+-- CREATE TABLE `descargaEstado2` (
+--   `id` int NOT NULL AUTO_INCREMENT,
+--   `descarga_iniciada` datetime DEFAULT NULL,
+--   `error` varchar(255) DEFAULT NULL,
+--   `url` varchar(255) DEFAULT NULL,
+--   `comentario` varchar(255) DEFAULT NULL,
+--   `descarga_completada` datetime DEFAULT NULL,
+--   PRIMARY KEY (`id`)
+-- );
+
+    query_insert = "INSERT INTO descargaEstado2 (id, error, url, comentario) VALUES (%s, %s, %s, %s)"
+
+-- ESTO ES NUEVO 14-06-2023 AGREGA EL id_url_dependient
+-- CREATE TABLE `documentos` (
+--   `id` int NOT NULL AUTO_INCREMENT,
+--   `link` varchar(255) DEFAULT NULL,
+--   `hora_desc` time DEFAULT NULL,
+--   `path` varchar(255) DEFAULT NULL,
+--   `ultima_desc` time DEFAULT NULL,
+--   `id_url_dependient` int DEFAULT NULL,
+--   `id_esclavo` int DEFAULT NULL,
+--   PRIMARY KEY (`id`)
+-- );
+
 CREATE TABLE `documentos` (
   `id` int NOT NULL AUTO_INCREMENT,
   `link` varchar(255) DEFAULT NULL,

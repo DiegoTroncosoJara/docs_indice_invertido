@@ -2531,7 +2531,11 @@ MX2003
 AX3000
 ID
 47641
+<<<<<<< HEAD
 22
+=======
+23
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Unid
 344
 990
@@ -2592,6 +2596,7 @@ Destacados
 de
 la
 Semana
+<<<<<<< HEAD
 Apple
 Audífonos
 In
@@ -2607,6 +2612,24 @@ Unid
 990
 Precio
 Oferta
+=======
+Linksys
+Routers
+Mesh
+Router
+Mesh
+Velop
+3900
+3
+Pack
+ID
+41378
+19
+Unid
+284
+990
+Precio
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Efectivo
 Añadir
 al
@@ -2646,6 +2669,7 @@ Efectivo
 Añadir
 al
 carro
+<<<<<<< HEAD
 Linksys
 Routers
 Mesh
@@ -2666,6 +2690,8 @@ Efectivo
 Añadir
 al
 carro
+=======
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Xiaomi
 Smartwatches
 Redmi
@@ -2686,6 +2712,30 @@ Efectivo
 Añadir
 al
 carro
+<<<<<<< HEAD
+=======
+Samsung
+Smartphones
+Smartphone
+Galaxy
+A53
+128GB
+6GB
+Negro
+Liberado
+ID
+45510
+50
+Unid
+259
+990
+Precio
+Oferta
+Efectivo
+Añadir
+al
+carro
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Ver
 todo
 Productos
@@ -2703,7 +2753,11 @@ Vigilancia
 Purple
 ID
 48998
+<<<<<<< HEAD
 50
+=======
+30
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Unid
 144
 990
@@ -2725,7 +2779,11 @@ Vigilancia
 Purple
 ID
 48997
+<<<<<<< HEAD
 50
+=======
+30
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Unid
 91
 990
@@ -2756,15 +2814,22 @@ HDR10
 B
 ID
 48905
+<<<<<<< HEAD
 5
 Unid
 324
+=======
+6
+Unid
+319
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 990
 Precio
 Efectivo
 Añadir
 al
 carro
+<<<<<<< HEAD
 Asus
 Tarjetas
 Gráficas
@@ -2780,6 +2845,29 @@ ID
 20
 Unid
 469
+=======
+TPLink
+Cámaras
+IP
+Cámara
+Seguridad
+IP
+Full
+HD
+WiFi
+de
+interior
+con
+movimiento
+360
+Tapo
+C200
+ID
+48861
+22
+Unid
+37
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 990
 Precio
 Efectivo

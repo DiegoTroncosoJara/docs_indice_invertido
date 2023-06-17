@@ -183,22 +183,31 @@ def goFindLink():
 
 # funcion que inicia  el proceso de traer un link 
 def algorithmInsertLinkScraping():
+    os.system("clear")
+    print("desde aca")
     link , conditional = goFindLink()
+    print(conditional)
+    print(link)
     try:
         if(len(link)!=0):
             check, id= CheckLinkDb(link[0])
+            print(check)
+            print(conditional)
             if(check!= True and conditional): 
+                print("pasa por aca para agregar...  ")
                 id_link_parent = verifylinkparentDb(link[1])
                 enterDbLink(link[0],id_link_parent)
             elif((check== False )and (conditional != False)):
-                algorithmInsertLinkScraping()
+                print("hola")
+                ##algorithmInsertLinkScraping()
+                pass 
             else:
                 print("hola viendo que cae en el else... .")
             ## algorithmInsertLinkScraping()
         else:
             print("no quedan mas link.....")
-    except:
-        ("error...")
+    except Exception as e  :
+        print("Error:", str(e))
 ####--------------------------------------------------------------------------------####
 
 
@@ -258,46 +267,19 @@ def bringDataFile(file_path, id_slave):
             return result
             
 
-def compressFile(file_path):
-    """
-    Comprime un archivo según su path
-    """
-    # ej: /some/path/to/www.file.txt
-    nombre_archivo = file_path.split("/")[-1] # www.file.txt
-    nombre_archivo = nombre_archivo.split(".")[:-1]
-    nombre_archivo = ".".join(nombre_archivo) # www.file
-    nombre_archivo_comprimido = "{}.zip".format(nombre_archivo) # file.zip
-    print(nombre_archivo_comprimido)
-
-    print('file_path = ', file_path)
-
-    # Comprimimos el archivo en zip y lo guardamos en el path del archivo
-
+def DbCallByPath(path):
+    cursor_2 = conexion.cursor()
+    url = ""
     try:
-        # tomamos el file_path menos el archivo.txt
-        path = file_path.split("/")[:-1] # /some/path/to/www.file
-        path = "/".join(path) # /some/path/to
-        # agregamos el nombre del archivo comprimido
-        path = "{}/{}".format(path, nombre_archivo_comprimido) # /some/path/to/file.zip
-        print('path = ', path)
-        # Comprimimos el archivo
-        with zipfile.ZipFile(path, 'w') as zip:
-            zip.write(file_path, nombre_archivo_comprimido)
-        print("Archivo comprimido")
-    except:
-        print("Error al comprimir archivo")
-        pass
+        cursor_2.execute(f"SELECT link, id_esclavo FROM documentos WHERE path = '{path}'")
+        url = cursor_2.fetchone()
+        cursor_2.close()  # Cerrar el cursor después de leer el resultado
+    except Exception as e:
+        print("Error:", str(e))
+        cursor_2.close()
+    return url
 
-
-    # Eliminar archivo original
-    try:
-        os.remove(file_path)
-        print('removiendo archivo original')   
-    except:
-        print("Error al eliminar archivo original")
-        pass
-
-
+    
 
 # =================================================================================================================== #
 # ============================================== Funciones para elasticsearch =======================================#
@@ -366,7 +348,7 @@ def refreshIndexes():
             file_name = list_names[i]
             url = data[i][0]
             try:
-                es.get(index=DB_NAME, id=file_name)
+                es.get(index=DB_NAME, id=url)
                 # Si el indexamiento es exitoso Comprimir el contenido del archivo
                 ##compressFile(list_path[i])
 
@@ -375,7 +357,7 @@ def refreshIndexes():
 
             except:
                 file_content = bringDataFile(list_path[i], list_id[i])
-                es.index(index=DB_NAME, id=file_name, document={
+                es.index(index=DB_NAME, id=url, document={
                         'title': file_name,
                         'content': file_content,
                         'url' : url,
@@ -458,7 +440,7 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
 
     #Agregar en el log la ruta
     log("busqueda_en_documentos") 
-
+    ssize = 30 
     # --- Si no hay Query ---
     # /api/elasticsearch/search
     # Entonces retorna todos los documentos
@@ -467,7 +449,7 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
             "match_all": {},
         }
        # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=q)
+        resp = es.search(index=DB_NAME, query=q, size= ssize)
         final_resp = []
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
@@ -505,7 +487,7 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
         }
 
         # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=query, highlight=highlight)
+        resp = es.search(index=DB_NAME, query=query, highlight=highlight , size=ssize )
         final_resp = []
 
         # hits.hits <··· Respuestas encontradas en Elasticsearch
@@ -513,6 +495,7 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
             title = hit['_source']['title']
             url = hit['_source']['url']
             content = hit['highlight']['content']
+            content = content[:500]
             # maintitle = title.split(".")[1]
             temp = { 'maintitle': title, 'link': url, 'content': content}
             final_resp.append(temp)
@@ -549,44 +532,49 @@ async def addLinkPath(link_path_scrapper: dict):
             return  { 'success': False, 'message': 'Something went wrong.'}
     
 
-    try:
-        # Nos conectamos a Mariadb/Mysql 
-        path = link_path_scrapper['link_path_scrapper']
-        cursor_1 = conexion.cursor()
-        cursor_1.execute(f"SELECT link, id_esclavo  FROM documentos WHERE path = '{path}'")
-        url = cursor_1.fetchone()
-        
-        print(path)
-        # Se verifica si el url es None o no
-        print("url: ", url)
-        if url is None:
-            print("El elemento no existe en la base de datos")
-            return {"success": False, "message": "El elemento no existe en la base de datos"}
-        cursor_1.close()
-        
-        file_name = obtainDomainPath(url[0])
-        print(file_name)
-        
-        file_content = bringDataFile(path, url[1])
-      
-    except Exception as e:
-        print("Error: ", e)
-        return  { "success": False, "message": "Something went wrong."}
-
-    # Add : maintitle, url, content
-    try:
+    path = link_path_scrapper['link_path_scrapper']
+    
+    url = DbCallByPath(path)   
+    if(url!=""):
+        try:
+            # Nos conectamos a Mariadb/Mysql 
+            
+            print(path)
+            # Se verifica si el url es None o no
+            print("url: ", url)
+            if url is None:
+                print("El elemento no existe en la base de datos")
+                return {"success": False, "message": "El elemento no existe en la base de datos"}
         
             
-            es.index(index=DB_NAME, id=file_name, document={
-                'title': file_name,
-                'content': file_content,
-                'url' : url[0],
-            })
-            return { "success": True, "message": "Se ha indexado el archivo"}
+            file_name = obtainDomainPath(url[0])
+            print(file_name)
+            
+            file_content = bringDataFile(path, url[1])
+            print(file_content[:1])
+        
+        except Exception as e:
+            
+            print("Error: ", e)
+            print("el error esta aca.. ")
+            return  { "success": False, "message": "Something went wrong."}
 
-    except Exception as e:
-        print("Error: ", e)
-        return { "success": False, "message": "Something went wrong" }
+        # Add : maintitle, url, content
+        try:
+            
+                
+                es.index(index=DB_NAME, id=url[0], document={
+                    'title': file_name,
+                    'content': file_content,
+                    'url' : url[0],
+                })
+                return { "success": True, "message": "Se ha indexado el archivo"}
+
+        except Exception as e:
+            print("Error: ", e)
+            return { "success": False, "message": "Something went wrong" }
+
+###------------------------------------------------------------------------
 
 # /api/links
 @app.post("/api/links")
@@ -634,17 +622,6 @@ if __name__ == "__main__":
     GetUrlSlaves()
     initializeGlobalData()
 
-    # algorithmInsertLinkScraping()
-
-    #obtener_dominio_raiz("https://www.youtube.com/new")
-
-
-    # validador , id = CheckLinkDb("http://www.circulodeespecialistas.cl/puntos-cmr-para-socios")
-    # ##print(validador)
-    # print(id)
-
-    # valor = verifylinkparentDb("http://www.circulodeespecialistas.cl/puntos-cmr-para-socios")
-    # print(valor)
 
     if(1): 
         #Crear un objeto scheduler

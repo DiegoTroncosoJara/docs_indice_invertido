@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Venta
 de
 discos
@@ -5,6 +6,13 @@ duros
 internos
 para
 notebook
+=======
+Microcomponentes
+Equipos
+de
+Musica
+Audio
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 PC
 Factory
 Celulares
@@ -2492,6 +2500,7 @@ Mayor
 Precio
 Nombre
 Marca
+<<<<<<< HEAD
 Toshiba
 Discos
 Notebooks
@@ -2505,12 +2514,32 @@ ID
 Unid
 44
 090
+=======
+PCF
+OEM
+Microcomponentes
+Mini
+Parlante
+de
+Metal
+con
+cables
+0
+5W
+8Ω
+ID
+27601
+7
+Unid
+890
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Precio
 Efectivo
 Comparar
 Añadir
 al
 carro
+<<<<<<< HEAD
 Seagate
 Discos
 Notebooks
@@ -2562,6 +2591,21 @@ ID
 Unid
 74
 990
+=======
+Huawei
+Microcomponentes
+Parlante
+Bluetooth
+Wifi
+Huawei
+Sound
+ID
+41004
+1
+Unid
+142
+490
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 Precio
 Efectivo
 Comparar
@@ -2569,9 +2613,15 @@ Añadir
 al
 carro
 1
+<<<<<<< HEAD
 4
 de
 4
+=======
+2
+de
+2
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 productos
 Productos
 por

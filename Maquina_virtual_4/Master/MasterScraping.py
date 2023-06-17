@@ -132,7 +132,7 @@ def sendRequest(url, url_data):
             return result
         else:
             print("error..")
-            return "" 
+            return "error.." 
         
     else:
         print('La solicitud falló con el código de estado:', response.status_code)
@@ -326,7 +326,9 @@ if __name__ == '__main__':
 
             
             # inicia el programa
-            startProgram()
+            
+            #startProgram()
+                
     
             #verifica cada 1 minitos si los esclavos estan disponibles
             schedule.every(1).minutes.do(timerSlaveStatus)

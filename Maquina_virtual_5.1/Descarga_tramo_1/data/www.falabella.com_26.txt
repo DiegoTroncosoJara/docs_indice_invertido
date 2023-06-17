@@ -27,6 +27,7 @@ tiendas
 SOLO
 x
 24h
+<<<<<<< HEAD
 23
 51
 42
@@ -40,6 +41,26 @@ por
 categoríaEspecial
 por
 categoríasCMRSegurosCuenta
+=======
+17
+33
+52
+SOLO
+x
+24h
+17Horas
+33Minutos
+52SegundosEspeciales
+por
+categoríaEspecial
+por
+categoríasOfertas
+que
+no
+te
+puedes
+perderCMRSegurosCuenta
+>>>>>>> 23a158b12a702e951286e0ced0f8309926e1b946
 corrientePuntos
 PesosFazil
 Encuentra
