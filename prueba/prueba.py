@@ -5,7 +5,7 @@ url = "http://127.0.0.1:4001/scrapi"
 
 # Realizar la solicitud GET al servidor
 response = requests.post(url, json={
-    'url_scraping':  "https://www.pcfactory.cl/ereaders?categoria=828&papa=967"
+    'url_scraping':  "https://www.jumbo.cl/"
 })
 
 # Verificar si la solicitud fue exitosa (código de estado 200)

@@ -18,7 +18,7 @@ PORT = os.getenv("PORT_SLAVE")
 ## define que es una aplicacion flask 
 app = Flask(__name__)
 
-
+## algoritmo ue comprime el archivo txt despues de utilizarlo... 
 def compressFile(file_path):
     """
     Comprime un archivo según su path
@@ -88,6 +88,8 @@ def obtainDomain(url):
 
 
 ## algoritmo que dado el scraping de las url, eligue alatoriamente entre (1,4) cuantos link va a dejar en  "link_for_scraping.txt"
+
+
 def scrapingLinks(url, links):
     print(url)
     data = ""
@@ -98,9 +100,10 @@ def scrapingLinks(url, links):
                 absolute_url = urljoin(url, href)
                 urls.append(absolute_url)
     
-    num_rand = random.randint(1,4)
-    print(num_rand)
-    print(len(urls))
+    
+    
+    num_rand = random.randint(1,int(os.getenv("RANDOM_LINK")))
+
     for i in range(num_rand):
         rand_link_cant = random.randint(0,len(urls))
         
@@ -133,6 +136,8 @@ def readFile():
         return jsonify({'content': 'error en leer el archivo.....'})
 
 ###definicon /scrapi -> en esta parte  realiza el scrapeo de la pagina enviada.
+
+
 @app.route('/scrapi',  methods=['POST'])
 def scrapingData():
     
@@ -141,9 +146,7 @@ def scrapingData():
     url = url['url_scraping']
 
     try:
-        ##response = requests.get("https://"+url+"/") # Hacer una solicitud GET al sitio web
         response = requests.get(url)
-       
         soup = BeautifulSoup(response.text, 'html.parser') # Analizar el contenido HTML de la página
         # # Extraer todas las palabras clave de la página web
         words = re.findall('\w+', soup.text)
@@ -158,9 +161,6 @@ def scrapingData():
         
         domain = obtainDomain(url)
         file_path = writeTxt(domain,data)
-        
-        
-        
 
         return ({'status': "ok" , 'file_path': file_path })
     except: 

@@ -1,105 +1,106 @@
 version: "3"
 services:
 
-  front-end:
-        build:
-            context: ./Maquina_Virtual_1
-            dockerfile: /frontend/Dockerfile
-        container_name: frontend
-        networks:
-          - network
+  # front-end:
+  #       build:
+  #           context: ./Maquina_Virtual_1
+  #           dockerfile: /frontend/Dockerfile
+  #       container_name: frontend
+  #       networks:
+  #         - network
 
-        ports:
-          - "3000:3000"
+  #       ports:
+  #         - "3000:3000"
         
-        restart: 'always'
+  #       restart: 'always'
 
-  Descarga_master:
-        build:
-            context: ./Maquina_Virtual_4
-            dockerfile: /Master/Dockerfile
-        container_name: Descargamaster
-        networks:
-          - network
+  # descarga_master:
+  #       build:
+  #           context: ./Maquina_Virtual_4/Master/
+  #           dockerfile: Dockerfile
+  #       container_name: Descargamaster
+  #       networks:
+  #         - network
 
-        ports:
-          - "4000:4000"
+  #       ports:
+  #         - "4000:4000"
         
-        restart: 'always'
+  #       restart: 'always'
           
 
-  descargatrano_0:
-        build:
-            context: ./Maquina_Virtual_5.0
-            dockerfile: /Descarga_Tramo_0/Dockerfile
-        container_name: descargatrano_0
-        networks:
-          - network
+  # descargatrano_0:
+  #       build:
+  #           context: ./Maquina_Virtual_5.0
+  #           dockerfile: /Descarga_Tramo_0/Dockerfile
+  #       container_name: descargatrano_0
+  #       networks:
+  #         - network
 
-        ports:
-          - "4000:4001"
+  #       ports:
+  #         - "4000:4001"
         
-        restart: 'always'
+  #       restart: 'always'
         
-  descargatrano_1:
-        build:
-            context: ./Maquina_Virtual_5.1
-            dockerfile: /Descarga_Tramo_1/Dockerfile
-        container_name: descargatrano_1
-        networks:
-          - network
+  # descargatrano_1:
+  #       build:
+  #           context: ./Maquina_Virtual_5.1
+  #           dockerfile: /Descarga_Tramo_1/Dockerfile
+  #       container_name: descargatrano_1
+  #       networks:
+  #         - network
 
-        ports:
-          - "4002:4002"
+  #       ports:
+  #         - "4002:4002"
         
-        restart: 'always'
-  descargatrano_2:
-        build:
-            context: ./Maquina_Virtual_5.2
-            dockerfile: /Descarga_Tramo_1/Dockerfile
-        container_name: descargatrano_2
+  #       restart: 'always'
 
-        networks:
-          - network
+  # descargatrano_2:
+  #       build:
+  #           context: ./Maquina_Virtual_5.2
+  #           dockerfile: /Descarga_Tramo_1/Dockerfile
+  #       container_name: descargatrano_2
 
-        ports:
-          - "4003:4003"
+  #       networks:
+  #         - network
+
+  #       ports:
+  #         - "4003:4003"
         
-        restart: 'always'
+  #       restart: 'always'
 
-  my-elasticsearch:8.7.1:
-        build:
-            context: ./Maquina_Virtual_2
-            dockerfile: /elasticsearch-8.7.1/Dockerfile
-        container_name: my-elasticsearch:8.7.1
+  # my-elasticsearch:8.7.1:
+  #       build:
+  #           context: ./Maquina_Virtual_2
+  #           dockerfile: /elasticsearch-8.7.1/Dockerfile
+  #       container_name: my-elasticsearch:8.7.1
 
-        networks:
-          - network
+  #       networks:
+  #         - network
 
-        ports:
-           - 9200:9200
+  #       ports:
+  #          - 9200:9200
 
         
-        restart: 'always'
+  #       restart: 'always'
 
-  back-end:
-        build:
-            context: ./Maquina_Virtual_2
-            dockerfile: /backEnd/Dockerfile
-        container_name: backend
+  # back-end:
+  #       build:
+  #           context: ./Maquina_Virtual_2
+  #           dockerfile: /backEnd/Dockerfile
+  #       container_name: backend
 
-        networks:
-          - network
+  #       networks:
+  #         - network
 
-        ports:
-          - 5000:5000
+  #       ports:
+  #         - 5000:5000
 
-        restart: 'always'
+  #       restart: 'always'
 
   base_de_datos:
         build:
-            context: ./Maquina_Virtual_3
-            dockerfile: /base _de_datos/Dockerfile
+            context: ./Maquina_Virtual_3/base_de_datos
+            dockerfile: Dockerfile
         container_name: base_de_datos_my_sql
 
         networks:

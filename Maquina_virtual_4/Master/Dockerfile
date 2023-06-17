@@ -8,4 +8,3 @@ COPY . .
 RUN pip install -r requirements.txt
 CMD ["python", "MasterScraping.py"]
 
-EXPOSE  4000

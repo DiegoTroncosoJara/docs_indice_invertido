@@ -184,20 +184,21 @@ def goFindLink():
 # funcion que inicia  el proceso de traer un link 
 def algorithmInsertLinkScraping():
     link , conditional = goFindLink()
-    
-    if(len(link)!=0):
-        check, id= CheckLinkDb(link[0])
-        if(check!= True and conditional): 
-            id_link_parent = verifylinkparentDb(link[1])
-            enterDbLink(link[0],id_link_parent)
-        elif((check== False )and (conditional != False)):
-            algorithmInsertLinkScraping()
+    try:
+        if(len(link)!=0):
+            check, id= CheckLinkDb(link[0])
+            if(check!= True and conditional): 
+                id_link_parent = verifylinkparentDb(link[1])
+                enterDbLink(link[0],id_link_parent)
+            elif((check== False )and (conditional != False)):
+                algorithmInsertLinkScraping()
+            else:
+                print("hola viendo que cae en el else... .")
+            ## algorithmInsertLinkScraping()
         else:
-            print("hola viendo que cae en el else... .")
-        ## algorithmInsertLinkScraping()
-    else:
-        print("no quedan mas link.....")
-
+            print("no quedan mas link.....")
+    except:
+        ("error...")
 ####--------------------------------------------------------------------------------####
 
 

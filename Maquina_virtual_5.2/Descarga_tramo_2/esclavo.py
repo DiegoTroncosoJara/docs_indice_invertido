@@ -18,7 +18,7 @@ PORT = os.getenv("PORT_SLAVE")
 ## define que es una aplicacion flask 
 app = Flask(__name__)
 
-
+## algoritmo ue comprime el archivo txt despues de utilizarlo... 
 def compressFile(file_path):
     """
     Comprime un archivo según su path
@@ -98,9 +98,10 @@ def scrapingLinks(url, links):
                 absolute_url = urljoin(url, href)
                 urls.append(absolute_url)
     
-    num_rand = random.randint(1,4)
-    print(num_rand)
-    print(len(urls))
+    
+    
+    num_rand = random.randint(1,int(os.getenv("RANDOM_LINK")))
+
     for i in range(num_rand):
         rand_link_cant = random.randint(0,len(urls))
         
