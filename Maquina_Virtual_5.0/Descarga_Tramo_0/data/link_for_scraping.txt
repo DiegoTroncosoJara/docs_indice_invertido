@@ -50,13 +50,11 @@ https://www.pcfactory.cl/memorias-pc?categoria=112&papa=264,https://www.pcfactor
 https://www.pcfactory.cl/juegos-xbox?categoria=710&papa=657,https://www.pcfactory.cl/brazalete-deportivo?categoria=688&papa=417
 https://www.pcfactory.cl/smartwatches?categoria=685&papa=936,https://www.pcfactory.cl/brazalete-deportivo?categoria=688&papa=417
 https://www.pcfactory.cl/radio-comunicadores?categoria=584&papa=893,https://www.pcfactory.cl/brazalete-deportivo?categoria=688&papa=417
-https://fen.uchile.cl/es/quienes-somos/consejo-facultad,https://fen.uchile.cl#carousel-example-generic
 https://www.pcfactory.cl/notebooks?categoria=735&papa=636,https://www.pcfactory.cl/tornamesas?categoria=864&papa=851
 https://www.pcfactory.cl/cpu-amd-str4?categoria=906&papa=272,https://www.pcfactory.cl/accesorios-de-impresoras?categoria=816&papa=809
 https://www.pcfactory.cl/4/carro,https://www.pcfactory.cl/accesorios-de-impresoras?categoria=816&papa=809
 https://www.pcfactory.cl/volantes?categoria=350&papa=661,https://www.pcfactory.cl/discos-notebooks?categoria=421&papa=706
 javascript:void(0),https://www.pcfactory.cl/discos-notebooks?categoria=421&papa=706
-https://www.pcfactory.cl/teclados?categoria=1301&papa=304,https://www.pcfactory.cl/discos-notebooks?categoria=421&papa=706
 https://www.pcfactory.cl/consolas-retro?categoria=934&papa=438,https://www.pcfactory.cl/accesorios-de-drones?categoria=786&papa=643
 https://uchile.cl/u186671,https://www.uchile.cl/postgrados/doctorados
 https://www.solotodo.cl/,https://www.solotodo.cl/products/84218-hp-pavilion-gaming-15-ec1026la-162d7la
@@ -146,7 +144,6 @@ https://www.pcfactory.cl/soportes-para-celulares?categoria=679&papa=417,https://
 https://www.pcfactory.cl/routers-vpn?categoria=717&papa=1132,https://www.pcfactory.cl/placas-madres-amd-sam4?categoria=838&papa=292
 https://www.pcfactory.cl/monitoreo-de-vehiculos?categoria=1095&papa=642,https://www.pcfactory.cl/articulos-de-escritorio?categoria=716&papa=819
 https://www.pcfactory.cl/cargadores-notebooks?categoria=543&papa=56,https://www.pcfactory.cl/articulos-de-escritorio?categoria=716&papa=819
-https://www.pcfactory.cl/accesorios-red?categoria=322&papa=296,https://www.pcfactory.cl/articulos-de-escritorio?categoria=716&papa=819
 https://www.pcfactory.cl/producto/43928-bluebind-guillotina-de-mesa-carta-u-oficio-offi-trim-1512,https://www.pcfactory.cl/articulos-de-escritorio?categoria=716&papa=819
 https://www.pcfactory.cl/bolsos-tablets?categoria=551&papa=503&tipo=BolsoseReaders,https://www.pcfactory.cl/print-servers?categoria=320&papa=634
 https://www.pcfactory.cl/dvd-y-blu-ray?categoria=795&papa=793,https://www.pcfactory.cl/print-servers?categoria=320&papa=634
@@ -159,7 +156,6 @@ https://www.pcfactory.cl/alarmas?categoria=628&papa=627,https://www.pcfactory.cl
 https://www.uach.cl/exalumnos/documentos,https://www.uach.cl/exalumnos/contacto
 https://www.falabella.com/falabella-cl/collection/cuota-sin-interes?sid=HO_CB_CUO_987,https://www.falabella.com/falabella-cl/category/cat2020/Colchones?facetSelected=true&f.derived.variant.sellerId=TOTTUS
 https://www.falabella.com/falabella-cl/category/cat13720017/Camas-1-5-Plazas,https://www.falabella.com/falabella-cl/category/cat2020/Colchones?facetSelected=true&f.derived.variant.sellerId=TOTTUS
-https://www.pcfactory.cl/juegos-playstation-5?categoria=1090&papa=657,https://www.pcfactory.cl/registro
 https://www.pcfactory.cl/impresoras-tinta?categoria=18&papa=262,https://www.pcfactory.cl/registro
 https://www.pcfactory.cl/coolers-solares?categoria=1127&papa=1125,https://www.pcfactory.cl/registro
 https://www.solotodo.cl/,https://www.solotodo.cl/contacto
@@ -190,3 +186,11 @@ https://www.pcfactory.cl/soportes-para-celulares?categoria=679&papa=417,https://
 https://www.pcfactory.cl/alarmas?categoria=628&papa=627,https://www.pcfactory.cl/bolsos-tablets?categoria=551&papa=503&tipo=BolsoseReaders
 https://www.pcfactory.cl/rotuladoras?categoria=715&papa=819,https://www.pcfactory.cl/bolsos-tablets?categoria=551&papa=503&tipo=BolsoseReaders
 https://corporativos.fen.uchile.cl,http://negocios.uchile.cl/
+https://www.pcfactory.cl/accesorios-corte-y-estampado?categoria=726&papa=809,https://www.pcfactory.cl/juegos-playstation-5?categoria=1090&papa=657
+https://www.pcfactory.cl/producto/32184-hellermanntyton-separador-para-canaleta-unicanal-100x50-1mt,https://www.pcfactory.cl/accesorios-red?categoria=322&papa=296
+https://www.pcfactory.cl/tv-y-smart-tv?categoria=789&papa=788,https://www.pcfactory.cl/accesorios-red?categoria=322&papa=296
+https://www.pcfactory.cl/producto/32181-hellermanntyton-minicanal-sin-division-20x10mm-2mt-ht2010,https://www.pcfactory.cl/accesorios-red?categoria=322&papa=296
+http://www.econ.uchile.cl/,https://fen.uchile.cl/es/quienes-somos/consejo-facultad
+https://fen.uchile.cl/es/quienes-somos/sab%C3%ADas-que,https://fen.uchile.cl/es/quienes-somos/consejo-facultad
+https://fen.uchile.cl/es/sala-de-prensa,https://fen.uchile.cl/es/quienes-somos/consejo-facultad
+https://fen.uchile.cl/es/quienes-somos/consejo-facultad,https://fen.uchile.cl/es/quienes-somos/consejo-facultad

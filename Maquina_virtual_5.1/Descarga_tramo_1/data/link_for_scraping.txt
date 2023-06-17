@@ -13,7 +13,6 @@ https://www.youtube.com/ads/,https://www.youtube.com/about/
 https://www.youtube.com/channel/UCqVDpXKLmKeBU_yyt_QkItQ,https://www.youtube.com/intl/ALL_cl/ads/how-it-works/
 https://www.youtube.com/intl/ALL_cl/ads/youtube-for-small-business/,https://www.youtube.com/intl/ALL_cl/ads/how-it-works/
 https://www.solotodo.cl/products/181533-samsung-galaxy-a14-5g-a146-128-gb-4-gb-black,https://www.solotodo.cl/cells?min_network_generation_start=1123014
-https://www.solotodo.cl/products/152986-xiaomi-redmi-10-5g-128-gb-4-gb-graphite-gray,https://www.solotodo.cl/cells?min_network_generation_start=1123014
 https://www.solotodo.cl/products/114409-xiaomi-redmi-note-10-5g-128-gb-4-gb-graphite-gray,https://www.solotodo.cl/cells?min_network_generation_start=1123014
 https://www.youtube.com/jobs/,https://blog.youtube/intl/es-419
 https://blog.youtube/intl/es-419/inside-youtube/conoce-mi-aula-una-herramienta-educativa-para-estudiantes-y-docentes-que-llega-a-colombia/,https://blog.youtube/intl/es-419
@@ -172,3 +171,7 @@ https://www.pcfactory.cl/producto/28000-ritrama-rollo-de-5910-etiquetas-autoadhe
 https://www.pcfactory.cl/microfonos-pc?categoria=528&papa=893,https://www.pcfactory.cl/papeles?categoria=443&papa=809
 https://www.pcfactory.cl/producto/47819-gyrux-bateria-portatil-20000-mah-con-pd-conector-usb-type-c,https://www.pcfactory.cl/baterias-externas?categoria=542&papa=417
 https://www.pcfactory.cl/codigos-microsoft-365?categoria=1098&papa=1097,https://www.pcfactory.cl/baterias-externas?categoria=542&papa=417
+https://www.solotodo.cl/legal_information?tab=0,https://www.solotodo.cl/products/152986-xiaomi-redmi-10-5g-128-gb-4-gb-graphite-gray
+https://www.instagram.com/solotodo_cl/,https://www.solotodo.cl/products/152986-xiaomi-redmi-10-5g-128-gb-4-gb-graphite-gray
+https://www.solotodo.cl/legal_information?tab=2,https://www.solotodo.cl/products/152986-xiaomi-redmi-10-5g-128-gb-4-gb-graphite-gray
+https://www.solotodo.cl/legal_information?tab=1,https://www.solotodo.cl/products/152986-xiaomi-redmi-10-5g-128-gb-4-gb-graphite-gray

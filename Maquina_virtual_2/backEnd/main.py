@@ -268,15 +268,19 @@ def bringDataFile(file_path, id_slave):
             
 
 def DbCallByPath(path):
-    cursor_2 = conexion.cursor()
+    cursor_1 = conexion.cursor()
     url = ""
-    try:
-        cursor_2.execute(f"SELECT link, id_esclavo FROM documentos WHERE path = '{path}'")
-        url = cursor_2.fetchone()
-        cursor_2.close()  # Cerrar el cursor después de leer el resultado
-    except Exception as e:
-        print("Error:", str(e))
-        cursor_2.close()
+    if(path!=""):
+
+        try:
+            cursor_1.execute(f"SELECT link, id_esclavo FROM documentos WHERE path = '{path}'")
+            url = cursor_1.fetchone()
+            cursor_1.close()  # Cerrar el cursor después de leer el resultado
+        except Exception as e:
+            print("Error:", str(e))
+
+    else:
+        cursor_1.close() 
     return url
 
     
@@ -573,6 +577,8 @@ async def addLinkPath(link_path_scrapper: dict):
         except Exception as e:
             print("Error: ", e)
             return { "success": False, "message": "Something went wrong" }
+    else:
+        return { "success": False, "message": "Something went wrong" }
 
 ###------------------------------------------------------------------------
 

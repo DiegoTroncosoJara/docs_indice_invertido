@@ -29,7 +29,6 @@ https://twitter.com/YouTube,https://blog.youtube/intl/es-419
 https://www.youtube.com/t/terms,https://www.youtube.com/susanwojcicki
 https://www.youtube.com/creators/,https://www.youtube.com/susanwojcicki
 https://www.pcfactory.cl/joysticks-pc?categoria=20&papa=661,https://www.pcfactory.cl/routers-vpn?categoria=717&papa=1132
-https://www.pcfactory.cl/comocomprar,https://www.pcfactory.cl/routers-vpn?categoria=717&papa=1132
 https://tottus.falabella.com/tottus-cl/category/CATG10207/Arroz--Legumbres-y-Semillas,https://tottus.falabella.com/tottus-cl
 https://tottus.falabella.com/tottus-cl/collection/vestuario-invierno-tottus,https://tottus.falabella.com/tottus-cl
 https://www.youtube.com/kids/,https://socialimpact.youtube.com/
@@ -118,3 +117,7 @@ https://grow.google/?utm_source=gDigital&utm_medium=empro-aboutsite&utm_campaign
 https://podcastsmanager.google.com/,https://www.google.cl/intl/en/about/products?tab=uh
 https://support.google.com/youtube/#topic=9257498,https://www.youtube.com/howyoutubeworks/
 https://www.youtube.com/howyoutubeworks/  /howyoutubeworks/progress-impact/timeline/,https://www.youtube.com/howyoutubeworks/
+https://www.pcfactory.cl/audifonos-in-ear?categoria=884&papa=850,https://www.pcfactory.cl/teclados?categoria=1301&papa=304
+https://www.pcfactory.cl/camaras-instantaneas?categoria=963&papa=643,https://www.pcfactory.cl/teclados?categoria=1301&papa=304
+https://www.pcfactory.cl/tarjetas-sim?categoria=730&papa=645,https://www.pcfactory.cl/teclados?categoria=1301&papa=304
+https://www.pcfactory.cl/apple,https://www.pcfactory.cl/teclados?categoria=1301&papa=304
