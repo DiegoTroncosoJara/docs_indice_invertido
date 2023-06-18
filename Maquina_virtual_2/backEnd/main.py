@@ -634,7 +634,7 @@ if __name__ == "__main__":
         scheduler = BackgroundScheduler()
 
         # Agregar la tarea al scheduler
-        scheduler.add_job(algorithmInsertLinkScraping, 'interval', minutes=1)
+        #scheduler.add_job(algorithmInsertLinkScraping, 'interval', minutes=1)
 
         # Iniciar el scheduler
         scheduler.start()
