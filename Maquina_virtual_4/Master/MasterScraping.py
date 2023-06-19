@@ -176,7 +176,7 @@ def checkNewUrls(rows_aux):
                 print(row[0])
                 insertDataDescargaEstado2(int(row[0]), "si", row[1], "se produjo un error al realizar el scraping", config )
                 deleteRowById(row[0],config)
-        ##ROWS = queryDB(path_data)
+        
         
 ## funcion que validad si alguna de las url de la base de datos le toca hacer scraping         
 
@@ -331,11 +331,12 @@ if __name__ == '__main__':
                 
     
             #verifica cada 1 minitos si los esclavos estan disponibles
-            schedule.every(1).minutes.do(timerSlaveStatus)
-            #verifica cada 30 min si se agrego una nueva url a la base de datos
-            schedule.every(1).minutes.do(daemonProcess)
+            schedule.every(int(os.getenv("MITUTES_TO_CONSULT_SLAVE"))).minutes.do(timerSlaveStatus)
+            #verifica cada 1 min si se agrego una nueva url a la base de datos
+            schedule.every(int(os.getenv("MITUTES_TO_CONSULT_DB"))).minutes.do(daemonProcess)
+
             ##verifica cada 1 hora si a alguna url se toca hacer scraping
-            schedule.every().hour.at(":00").do(checkEveryHour)
+            #schedule.every().hour.at(":00").do(checkEveryHour)
 
 
             

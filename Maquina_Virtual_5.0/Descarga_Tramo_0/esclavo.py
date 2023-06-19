@@ -6,6 +6,12 @@ from bs4 import BeautifulSoup
 import json
 import re
 import os
+
+#Logs
+import logging
+from logging import handlers
+import time
+
 from dotenv import load_dotenv
 import zipfile
 ##----------------------------------------------------------------#
@@ -17,6 +23,39 @@ PORT = os.getenv("PORT_SLAVE")
 
 ## define que es una aplicacion flask 
 app = Flask(__name__)
+
+
+
+# ----- Funcion para crear logs ----- #
+# Crear un objeto de log
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
+
+# Crear un manejador para escribir en el archivo de log
+log_path = os.getenv("LOG_PATH")
+
+log_file = log_path
+file_handler = handlers.RotatingFileHandler(log_file, maxBytes=1024, backupCount=3)
+file_handler.setLevel(logging.DEBUG)
+
+# Formateador para el log
+formatter = logging.Formatter('%(message)s')
+file_handler.setFormatter(formatter)
+
+# Agregar el manejador al objeto de log
+logger.addHandler(file_handler)
+
+# ----- Funcion para crear logs ----- #
+def log(text):
+    current_time = int(time.time())
+    """ 
+    Registrar un mensaje con el tiempo UNIX
+    El formato es: TiempoEnUnix;Referencia_log
+    EJ: 1686363931;ObtainDomainPath
+    """
+    logger.debug(f'{current_time};{text}')
+# ----- Funcion para crear logs ----- #
+
 
 ## algoritmo ue comprime el archivo txt despues de utilizarlo... 
 def compressFile(file_path):
@@ -72,7 +111,7 @@ def writeTxt(url,data):
 
 ### funcion que escribe los url  en  "link_for_scraping.txt"
 def writeLinkScarping(data):
-    with open("./data/link_for_scraping.txt", 'a') as txt:
+    with open("./data{}".format(os.getenv("PATH_TXT_SUBCRAPING")), 'a') as txt:
         txt.write(data)
         ##txt.write("\n")
 
@@ -119,6 +158,8 @@ def scrapingLinks(url, links):
 #permite devolver el contenido de los archivos txt
 @app.route('/leer', methods=['POST'])
 def readFile():
+
+    log("leer_contenido_txt")
     file_path = request.get_json('file_path')
     file_path =  file_path['file_path']
     ##print(file_path)
@@ -140,7 +181,7 @@ def readFile():
 
 @app.route('/scrapi',  methods=['POST'])
 def scrapingData():
-    
+    log("llamada_para_realizar_scraping")
     data = ""
     url = request.get_json('url_scraping')
     url = url['url_scraping']
@@ -170,8 +211,8 @@ def scrapingData():
 ##entrega un link al backend para que este lo pueda almacenar en db. Además, elimina del txt el link.
 @app.route('/getlink',  methods=['GET'])
 def getlink():
-
-    with open("./data/link_for_scraping.txt", "r") as archivo:
+    log("entrega_link_sub_scraping")
+    with open("./data{}".format(os.getenv("PATH_TXT_SUBCRAPING")), "r") as archivo:
         lineas = archivo.readlines()
 
     if(len(lineas)!=0):
@@ -181,7 +222,7 @@ def getlink():
         linea_aleatoria = linea_aleatoria.rstrip()
         del lineas[indice_aleatorio]
 
-        with open("./data/link_for_scraping.txt", "w") as archivo:
+        with open("./data{}".format(os.getenv("PATH_TXT_SUBCRAPING")), "w") as archivo:
             archivo.writelines(lineas)
         return  jsonify ({'link': linea_aleatoria, "status" : "ok"  })
     else: 
@@ -190,6 +231,7 @@ def getlink():
 ## definicion  de un beat para saber que el servidor esta disponible
 @app.route('/latido',  methods=['GET'])
 def beat():
+    log("latido_ok ")
     return  ({'status': "ok" })
 
 
