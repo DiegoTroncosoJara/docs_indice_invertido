@@ -30,7 +30,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 ## funciones 
-from helpers.helper import obtener_dominio_raiz , obtainDomainPath
+from helpers.helper import obtener_dominio_raiz , obtainDomainPath, SeparaLink
 #
 # ----- Cargar .env ----- #
 load_dotenv()
@@ -129,7 +129,7 @@ def GetUrlSlaves():
 ## retorna alatoriamente un esclavo para ir a buscar un link para hacer un scraping
 def RandomSlave():
     num = random.randint(0,len(SLAVES)-1)
-    ##return "http://127.0.0.1:4001/getlink"
+    #return "http://127.0.0.1:4001/getlink"
     return SLAVES[str(num)] + "getlink" 
 
 
@@ -139,10 +139,8 @@ def CheckLinkDb(link):
     query_select = f"SELECT * FROM documentos WHERE link = '{link}'"
     cursor.execute(query_select)
     resultado = cursor.fetchone()
-    conexion.commit()
     
     if resultado is not None:
-        print("El enlace está en la base de datos.")
         return True, resultado[0]
     else:
         return False, None
@@ -151,22 +149,20 @@ def CheckLinkDb(link):
 ##agrega un link a la base de datos con su hora para realizar scraping. 
 def enterDbLink(link, id_link_parent):
     hora_desc = datetime.now().strftime("%H:%M:%S")
-    query_db = "INSERT INTO documentos (link, hora_desc, id_url_dependient) VALUES (%s, %s, %s)"
+    query_db = "INSERT INTO documentos (link, hoara_desc, id_url_dependient) VALUES (%s, %s, %s)"
     values_db = (link, hora_desc, id_link_parent)
     cursor.execute(query_db, values_db)
     conexion.commit()
 
 
 def  verifylinkparentDb(url):
-    url = obtener_dominio_raiz(url)
-    print("verify parentDB, url: ", url)
     check, id = CheckLinkDb(url)
-    print("verify parentDB, check:",check)
     ##ver su url raiz 
     if(check): 
         return id 
     else: 
         return None 
+
 
 ### trae un link de los distintos scrapeer 
 def goFindLink():
@@ -176,29 +172,43 @@ def goFindLink():
         result = response.json()
         if (result["status"] == "ok"): 
             result = result["link"]
-            return result , True
+            result = SeparaLink(result)
 
+            return result , True
         else: 
-            print("no quedan mas link.. ")
-            return None, False 
+            return [], False 
     else: 
         print("error de conexion... ")
+        
 
 # funcion que inicia  el proceso de traer un link 
 def algorithmInsertLinkScraping():
+    os.system("clear")
+    print("desde aca")
     link , conditional = goFindLink()
-    check, val = CheckLinkDb(link)
-    if(check!= True and conditional): 
-
-        id_link_parent = verifylinkparentDb(link)
-        enterDbLink(link,id_link_parent)
-    elif((check== False )and (conditional != False)):
-        algorithmInsertLinkScraping()
-    else:
-        print("hola viendo que cae en el else... .")
-       ## algorithmInsertLinkScraping()
-
-####-------------------------------------------------------------------------------####
+    print(conditional)
+    print(link)
+    try:
+        if(len(link)!=0):
+            check, id= CheckLinkDb(link[0])
+            print(check)
+            print(conditional)
+            if(check!= True and conditional): 
+                print("pasa por aca para agregar...  ")
+                id_link_parent = verifylinkparentDb(link[1])
+                enterDbLink(link[0],id_link_parent)
+            elif((check== False )and (conditional != False)):
+                print("hola")
+                ##algorithmInsertLinkScraping()
+                pass 
+            else:
+                print("hola viendo que cae en el else... .")
+            ## algorithmInsertLinkScraping()
+        else:
+            print("no quedan mas link.....")
+    except Exception as e  :
+        print("Error:", str(e))
+####--------------------------------------------------------------------------------####
 
 
 # =================================================================================================================== #
@@ -218,7 +228,6 @@ def dbCall():
     query = "SELECT  link, path , id_esclavo FROM  documentos"
     cursor.execute(query)
     data = cursor.fetchall()
-
     ##data = [elemento for dupla in datos for elemento in dupla]
 
 # /api/elasticsearch/refresh
@@ -258,46 +267,23 @@ def bringDataFile(file_path, id_slave):
             return result
             
 
-def compressFile(file_path):
-    """
-    Comprime un archivo según su path
-    """
-    # ej: /some/path/to/www.file.txt
-    nombre_archivo = file_path.split("/")[-1] # www.file.txt
-    nombre_archivo = nombre_archivo.split(".")[:-1]
-    nombre_archivo = ".".join(nombre_archivo) # www.file
-    nombre_archivo_comprimido = "{}.zip".format(nombre_archivo) # file.zip
-    print(nombre_archivo_comprimido)
+def DbCallByPath(path):
+    cursor_1 = conexion.cursor()
+    url = ""
+    if(path!=""):
 
-    print('file_path = ', file_path)
+        try:
+            cursor_1.execute(f"SELECT link, id_esclavo FROM documentos WHERE path = '{path}'")
+            url = cursor_1.fetchone()
+            cursor_1.close()  # Cerrar el cursor después de leer el resultado
+        except Exception as e:
+            print("Error:", str(e))
 
-    # Comprimimos el archivo en zip y lo guardamos en el path del archivo
+    else:
+        cursor_1.close() 
+    return url
 
-    try:
-        # tomamos el file_path menos el archivo.txt
-        path = file_path.split("/")[:-1] # /some/path/to/www.file
-        path = "/".join(path) # /some/path/to
-        # agregamos el nombre del archivo comprimido
-        path = "{}/{}".format(path, nombre_archivo_comprimido) # /some/path/to/file.zip
-        print('path = ', path)
-        # Comprimimos el archivo
-        with zipfile.ZipFile(path, 'w') as zip:
-            zip.write(file_path, nombre_archivo_comprimido)
-        print("Archivo comprimido")
-    except:
-        print("Error al comprimir archivo")
-        pass
-
-
-    # Eliminar archivo original
-    try:
-        os.remove(file_path)
-        print('removiendo archivo original')   
-    except:
-        print("Error al eliminar archivo original")
-        pass
-
-
+    
 
 # =================================================================================================================== #
 # ============================================== Funciones para elasticsearch =======================================#
@@ -366,7 +352,6 @@ def refreshIndexes():
             file_name = list_names[i]
             url = data[i][0]
             try:
-                # 14-06-2023 id=url
                 es.get(index=DB_NAME, id=url)
                 # Si el indexamiento es exitoso Comprimir el contenido del archivo
                 ##compressFile(list_path[i])
@@ -375,7 +360,6 @@ def refreshIndexes():
 
 
             except:
-                # 14-06-2023 id=url
                 file_content = bringDataFile(list_path[i], list_id[i])
                 es.index(index=DB_NAME, id=url, document={
                         'title': file_name,
@@ -459,9 +443,8 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
     """
 
     #Agregar en el log la ruta
-    log("busqueda_en_documentos")
+    log("busqueda_en_documentos") 
     ssize = 30 
-
     # --- Si no hay Query ---
     # /api/elasticsearch/search
     # Entonces retorna todos los documentos
@@ -470,13 +453,12 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
             "match_all": {},
         }
        # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=q, size=ssize)
+        resp = es.search(index=DB_NAME, query=q, size= ssize)
         final_resp = []
         for hit in resp['hits']['hits']:
             title = hit['_source']['title']
             url = hit['_source']['url']
-            content = hit['_source']['content'] # le mandamos 500 caracteres
-            content = content[:500]
+            content = hit['_source']['content']
 
             # maintitle = title.split(".")[1]
             temp = { 'maintitle': title, 'link': url, 'content': content}
@@ -509,7 +491,7 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
         }
 
         # --- Buscando en el índice DB_NAME ---
-        resp = es.search(index=DB_NAME, query=query, highlight=highlight, size=ssize)
+        resp = es.search(index=DB_NAME, query=query, highlight=highlight , size=ssize )
         final_resp = []
 
         # hits.hits <··· Respuestas encontradas en Elasticsearch
@@ -517,6 +499,7 @@ def searchRoot(q: str = Query(None, min_length=3, max_length=50)):
             title = hit['_source']['title']
             url = hit['_source']['url']
             content = hit['highlight']['content']
+            content = content[:500]
             # maintitle = title.split(".")[1]
             temp = { 'maintitle': title, 'link': url, 'content': content}
             final_resp.append(temp)
@@ -553,44 +536,51 @@ async def addLinkPath(link_path_scrapper: dict):
             return  { 'success': False, 'message': 'Something went wrong.'}
     
 
-    try:
-        # Nos conectamos a Mariadb/Mysql 
-        path = link_path_scrapper['link_path_scrapper']
-        cursor_1 = conexion.cursor()
-        cursor_1.execute(f"SELECT link, id_esclavo  FROM documentos WHERE path = '{path}'")
-        url = cursor_1.fetchone()
+    path = link_path_scrapper['link_path_scrapper']
+    
+    url = DbCallByPath(path)   
+    if(url!=""):
+        try:
+            # Nos conectamos a Mariadb/Mysql 
+            
+            print(path)
+            # Se verifica si el url es None o no
+            print("url: ", url)
+            if url is None:
+                print("El elemento no existe en la base de datos")
+                return {"success": False, "message": "El elemento no existe en la base de datos"}
         
-        print(path)
-        # Se verifica si el url es None o no
-        print("url: ", url)
-        if url is None:
-            print("El elemento no existe en la base de datos")
-            return {"success": False, "message": "El elemento no existe en la base de datos"}
-        cursor_1.close()
+            
+            file_name = obtainDomainPath(url[0])
+            print(file_name)
+            
+            file_content = bringDataFile(path, url[1])
+            print(file_content[:1])
         
-        file_name = obtainDomainPath(url[0])
-        print(file_name)
-        
-        file_content = bringDataFile(path, url[1])
-      
-    except Exception as e:
-        print("Error: ", e)
-        return  { "success": False, "message": "Something went wrong."}
+        except Exception as e:
+            
+            print("Error: ", e)
+            print("el error esta aca.. ")
+            return  { "success": False, "message": "Something went wrong."}
 
-    # Add : maintitle, url, content
-    try:
-        
-            # 14-06-2021
-            es.index(index=DB_NAME, id=url[0], document={
-                'title': file_name,
-                'content': file_content,
-                'url' : url[0],
-            })
-            return { "success": True, "message": "Se ha indexado el archivo"}
+        # Add : maintitle, url, content
+        try:
+            
+                
+                es.index(index=DB_NAME, id=url[0], document={
+                    'title': file_name,
+                    'content': file_content,
+                    'url' : url[0],
+                })
+                return { "success": True, "message": "Se ha indexado el archivo"}
 
-    except Exception as e:
-        print("Error: ", e)
+        except Exception as e:
+            print("Error: ", e)
+            return { "success": False, "message": "Something went wrong" }
+    else:
         return { "success": False, "message": "Something went wrong" }
+
+###------------------------------------------------------------------------
 
 # /api/links
 @app.post("/api/links")
@@ -605,7 +595,7 @@ async def getLink(link: dict):
     link_final = link["link"]
     check, link = CheckLinkDb(link_final)
     if(check!=True):
-        enterDbLink(link_final)
+        enterDbLink(link_final,None)
         return JSONResponse(content={"status": "success", "message": "El link se registró correctamente." })
     else:
         return JSONResponse(content={"status" : "error" ,"message": "El link ya está registrado."})
@@ -638,24 +628,13 @@ if __name__ == "__main__":
     GetUrlSlaves()
     initializeGlobalData()
 
-    #algorithmInsertLinkScraping()
-
-    #obtener_dominio_raiz("https://www.youtube.com/new")
-
-
-    # validador , id = CheckLinkDb("http://www.circulodeespecialistas.cl/puntos-cmr-para-socios")
-    # ##print(validador)
-    # print(id)
-
-    # valor = verifylinkparentDb("http://www.circulodeespecialistas.cl/puntos-cmr-para-socios")
-    # print(valor)
 
     if(1): 
         #Crear un objeto scheduler
         scheduler = BackgroundScheduler()
 
         # Agregar la tarea al scheduler
-        scheduler.add_job(algorithmInsertLinkScraping, 'interval', minutes=1)
+        scheduler.add_job(algorithmInsertLinkScraping, 'interval', minutes=int(os.getenv("MINUTES_SEARCH_LINK")))
 
         # Iniciar el scheduler
         scheduler.start()
@@ -666,6 +645,8 @@ if __name__ == "__main__":
         except (KeyboardInterrupt, SystemExit):
             # Detener el scheduler cuando se recibe una señal de interrupción o salida del sistema
             scheduler.shutdown()
+            scheduler.start()
+
 
         
 

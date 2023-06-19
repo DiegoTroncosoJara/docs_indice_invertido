@@ -12,7 +12,7 @@ async function sendNewUrl (url){
   };
 
   try {
-    const response = await fetch(`http://localhost:8000/api/links`, requestOptions);
+    const response = await fetch(`http://0.0.0.0:8000/api/links`, requestOptions);
     const data = await response.json();
     Swal.fire({
       icon: data.status,

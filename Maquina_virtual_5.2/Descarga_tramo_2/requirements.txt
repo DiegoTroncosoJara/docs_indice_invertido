@@ -2,4 +2,5 @@ Flask
 requests
 beautifulsoup4
 python-dotenv
-
+zipfile36
+logging

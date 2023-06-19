@@ -1,7 +1,7 @@
 
 const getSearchResponse= async (query) => {
   const data = await fetch(
-    `http://localhost:8000/api/elasticsearch/search?q=${query}`
+    `http://0.0.0.0:8000/api/elasticsearch/search?q=${query}`
   )
     .then((response) => response.json())
     .then((data) => {
@@ -26,7 +26,7 @@ const getMultiWordSearchResponse= async (query) => {
   let multi_searchs =  query.join("+");
 
   const data = await fetch(
-    `http://localhost:8000/api/elasticsearch/search?q=${multi_searchs}`
+    `http://0.0.0.0:8000/api/elasticsearch/search?q=${multi_searchs}`
   )
     .then((response) => response.json())
     .then((data) => {

@@ -3,8 +3,8 @@ services:
 
   front-end:
         build:
-            context: ./Maquina_Virtual_1
-            dockerfile: /frontend/Dockerfile
+            context: ./Maquina_Virtual_1/frontend
+            dockerfile: Dockerfile
         container_name: frontend
         networks:
           - network
@@ -14,10 +14,10 @@ services:
         
         restart: 'always'
 
-  Descarga_master:
+  descarga_master:
         build:
-            context: ./Maquina_Virtual_4
-            dockerfile: /Master/Dockerfile
+            context: ./Maquina_Virtual_4/Master/
+            dockerfile: Dockerfile
         container_name: Descargamaster
         networks:
           - network
@@ -30,8 +30,8 @@ services:
 
   descargatrano_0:
         build:
-            context: ./Maquina_Virtual_5.0
-            dockerfile: /Descarga_Tramo_0/Dockerfile
+            context: ./Maquina_Virtual_5.0/Descarga_Tramo_0
+            dockerfile: Dockerfile
         container_name: descargatrano_0
         networks:
           - network
@@ -43,8 +43,8 @@ services:
         
   descargatrano_1:
         build:
-            context: ./Maquina_Virtual_5.1
-            dockerfile: /Descarga_Tramo_1/Dockerfile
+            context: ./Maquina_Virtual_5.1/Descarga_Tramo_1
+            dockerfile: Dockerfile
         container_name: descargatrano_1
         networks:
           - network
@@ -53,10 +53,11 @@ services:
           - "4002:4002"
         
         restart: 'always'
+
   descargatrano_2:
         build:
-            context: ./Maquina_Virtual_5.2
-            dockerfile: /Descarga_Tramo_1/Dockerfile
+            context: ./Maquina_Virtual_5.2/Descarga_Tramo_1
+            dockerfile: /Dockerfile
         container_name: descargatrano_2
 
         networks:
@@ -69,8 +70,8 @@ services:
 
   my-elasticsearch:8.7.1:
         build:
-            context: ./Maquina_Virtual_2
-            dockerfile: /elasticsearch-8.7.1/Dockerfile
+            context: ./Maquina_Virtual_2/elasticsearch-8.7.1
+            dockerfile: Dockerfile
         container_name: my-elasticsearch:8.7.1
 
         networks:
@@ -84,8 +85,8 @@ services:
 
   back-end:
         build:
-            context: ./Maquina_Virtual_2
-            dockerfile: /backEnd/Dockerfile
+            context: ./Maquina_Virtual_2/backEnd
+            dockerfile: Dockerfile
         container_name: backend
 
         networks:
@@ -98,8 +99,8 @@ services:
 
   base_de_datos:
         build:
-            context: ./Maquina_Virtual_3
-            dockerfile: /base _de_datos/Dockerfile
+            context: ./Maquina_Virtual_3/base_de_datos
+            dockerfile: Dockerfile
         container_name: base_de_datos_my_sql
 
         networks:

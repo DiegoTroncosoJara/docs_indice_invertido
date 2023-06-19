@@ -43,7 +43,7 @@ def newIndexing(path):
             print("se realizo la indexion correctamente....")
             return True
         elif(result['success'] == False):
-            print("paso un error en el back.....")
+            print("paso un error en el back.....",  response.status_code)
             return False
         
     except:
@@ -63,13 +63,13 @@ def callElasticSearch():
         
            return True 
         if(result['success'] == False):
-            print("desde aca por que es falso.....")
+            print("paso un error en el back.....",  response.status_code)
             return False
-            pass
+            
     except:
         print("error.... ")
 
-    pass 
+ 
 
 ##funcion que inicializa los esclavos disponibles 
 def initSlaves(): 
@@ -95,6 +95,9 @@ def checkSlaveStatus(url):
         
     except:
         return False
+    
+
+
 ## funcion que cada un tiempo determinado verifica que esten encendidos los esclavos.         
 def timerSlaveStatus():
     for i in range(len(SLAVES)):
@@ -114,9 +117,10 @@ def obtainDomain(url):
     domain = parsed_url.netloc
 
     return domain+"_"+quantity  
+###balanceador de carga
 
 ###----------------------------------------------------------------------------------#
-###balanceador de carga
+
 def sendRequest(url, url_data):
     data = {'url_scraping': url_data }
     response = requests.post('{}/scrapi'.format(url), json=data)
@@ -127,9 +131,9 @@ def sendRequest(url, url_data):
             result = result["file_path"]
             return result
         else:
+            print("error..")
             return "error.." 
         
-
     else:
         print('La solicitud falló con el código de estado:', response.status_code)
         return "None"
@@ -169,33 +173,35 @@ def checkNewUrls(rows_aux):
                 ## llamar a back/ para realizar la insercion  altro..
                 newIndexing(path_data)
             else: 
-                print("mierda un error.. ")
                 print(row[0])
                 insertDataDescargaEstado2(int(row[0]), "si", row[1], "se produjo un error al realizar el scraping", config )
                 deleteRowById(row[0],config)
-        ##ROWS = queryDB(path_data)
+        
         
 ## funcion que validad si alguna de las url de la base de datos le toca hacer scraping         
-def checkEveryHour():
+
+def  checkEveryHour():
     global ROWS
+    ROWS = queryDB(config)
     now = datetime.now()
     current_time = now.strftime("%H")
+    
+    print("verificando la hora para hacer scraping... ")
     for row in ROWS:
         data_time = str(row[2])
         if(str(current_time) !=  data_time[:2]):
-            print("no son iguales ")
+            print( str(row[2]))
         else:
-            min = sendLoadBalancedRequest(row[1])
-            insertInDB(row[1],min)        
+            min, path_data = sendLoadBalancedRequest(row[1])
+            print(min)
+            insertInDB(row[1],min, path_data)
+            newIndexing(path_data)      
     
-    ROWS = queryDB(config)
-
-
+    
 
 ##funcion que consulta se agrego  una nueva url para realizar el scraping    
 def daemonProcess():
         #rows_aux = queryDB(config)
-        print("realizando consulta demonio")
 
         conn = mysql.connector.connect(**config)
 
@@ -263,7 +269,7 @@ def insertInDB(url,id_esclavo, path_data):
     conn.close()
     return absolute_path
 
-
+###elimina el link de la base de datos por su id 
 def deleteRowById(row_id, config):
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
@@ -276,13 +282,14 @@ def deleteRowById(row_id, config):
     cursor.close()
     conn.close()
 
-
+##  inserta en la base de datos, si es que pasa un error.
 def insertDataDescargaEstado2(id, error, url, comentario, config):
+    hora_desc = datetime.now().strftime("%H:%M:%S")
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
 
-    query_insert = "INSERT INTO descargaEstado2 (id, error, url, comentario) VALUES (%s, %s, %s, %s)"
-    data = (id, error, url, comentario)
+    query_insert = "INSERT INTO descargaEstado2 (id, error, url, comentario,hora_error) VALUES (%s, %s, %s, %s, %s)"
+    data = (id, error, url, comentario,hora_desc)
     cursor.execute(query_insert, data)
 
     conn.commit()
@@ -319,43 +326,25 @@ if __name__ == '__main__':
 
             
             # inicia el programa
-            startProgram()
             
-
-
-
+            #startProgram()
+                
+    
             #verifica cada 1 minitos si los esclavos estan disponibles
-            schedule.every(1).minutes.do(timerSlaveStatus)
-            #verifica cada 30 min si se agrego una nueva url a la base de datos
-            schedule.every(1).minutes.do(daemonProcess)
+            schedule.every(int(os.getenv("MITUTES_TO_CONSULT_SLAVE"))).minutes.do(timerSlaveStatus)
+            #verifica cada 1 min si se agrego una nueva url a la base de datos
+            schedule.every(int(os.getenv("MITUTES_TO_CONSULT_DB"))).minutes.do(daemonProcess)
+
             ##verifica cada 1 hora si a alguna url se toca hacer scraping
             #schedule.every().hour.at(":00").do(checkEveryHour)
 
-            # schedule.every().day.at("15:56").do(startProgram)
-            # schedule.every().day.at("15:56").do(startProgram)
 
             
-            ## ol programa queda corriendo 
+            ## el programa queda corriendo 
             while True:
                 schedule.run_pending()
                 time.sleep(1)
-
-        else:
-            daemonProcess()
-            ##newIndexing("/Users/basti/Desktop/sis_dis/docs_indice_invertido/Maquina_Virtual_5.0/Descarga_Tramo_0/data/phuijse.github.io_85.txt")
-
-
-
-    ###########################################################################
-    # for row in ROWS:
-    #     print(row[1])
-    #     minimo = sendLoadBalancedRequest(row[1])
-    #     print(minimo)
-    #     insertInDB(row[1],minimo)
-        ##peticion_esclavo(row[1])
-
-        # with multiprocessing.Pool(num_processes) as pool:
-        #         results = pool.map(sendLoadBalancedRequest(row[1]), range(num_processes))
+ 
 
 
 
